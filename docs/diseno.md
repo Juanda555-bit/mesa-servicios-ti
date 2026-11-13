@@ -1,7 +1,7 @@
 # Diseño – Mesa de Servicios TI
 
 > **Estado:** borrador para revisión del equipo (Actividad 3). Parte de `docs/requisitos.md`.
-> El esquema SQL ejecutable y su código de acceso se entregan en la Actividad 4 (implementación); este documento define su diseño.
+> El esquema SQL ejecutable está en `backend/db/schema.sql`.
 
 ## 1. Decisiones técnicas
 
@@ -156,16 +156,14 @@ Un usuario por rol como mínimo (más un segundo técnico para probar la reasign
 
 ### 3.7 Verificación
 
-El diseño del esquema se validó en SQLite 3.49 con 45 operaciones: un flujo completo válido (registro, evaluación, asignación, reasignación, intervenciones, resolución y cierre) y los rechazos esperados (datos inválidos, segundo responsable, edición o borrado del historial, modificación de un caso cerrado). Resultado: 45 correctas, 0 fallidas. El script SQL y el de prueba se incluirán en el repositorio con la Actividad 4.
+El esquema se probó con 45 operaciones en SQLite 3.49: un flujo completo válido (registro, evaluación, asignación, reasignación, intervenciones, resolución y cierre) y los rechazos esperados (datos inválidos, segundo responsable, edición o borrado del historial, modificación de un caso cerrado). Resultado: 45 correctas, 0 fallidas. El script es `backend/db/probar_esquema.py`.
 
 ### 3.8 Integración con Python (ORM)
 
-Diseño previsto, que se implementa en la Actividad 4:
-
-- **Creación de la base:** un script `schema.sql` (tablas, índices, triggers, vistas). No se usa `create_all()` del ORM, porque no crearía triggers ni vistas.
-- **Acceso a datos:** modelos SQLAlchemy, una clase por tabla y dos vistas de solo lectura. Los estados, roles y prioridades son enumeraciones, y las fechas se leen como `datetime` en UTC.
-- **Conexión:** se activa `PRAGMA foreign_keys = ON` en cada conexión y se ofrece una sesión por solicitud a FastAPI. La ruta de la base se toma de `DATABASE_URL` o, si falta, de un archivo local.
-- **Pruebas previstas:** que los modelos coincidan con el esquema real (columnas, nulabilidad, claves primarias y foráneas), el flujo completo con el ORM y las protecciones de la base.
+- **Creación de la base:** `backend/db/schema.sql` (tablas, índices, triggers, vistas) mediante `inicializar_base()`. No se usa `create_all()`, porque no crearía triggers ni vistas.
+- **Acceso a datos:** modelos SQLAlchemy en `backend/db/models.py` (una clase por tabla y dos vistas de solo lectura). Los estados, roles y prioridades son enumeraciones, y las fechas se leen como `datetime` en UTC.
+- **Conexión:** `backend/db/database.py` activa `PRAGMA foreign_keys = ON` en cada conexión y ofrece `get_session()` para FastAPI. La ruta de la base se toma de `DATABASE_URL` o, si falta, de `backend/mesa_ti.db`.
+- **Pruebas:** `backend/tests/test_modelos.py` comprueba que los modelos coinciden con el esquema real (columnas, nulabilidad, claves primarias y foráneas), el flujo completo con el ORM y las protecciones de la base. Resultado: 5 correctas, 0 fallidas.
 
 ## 4. Máquina de estados
 
