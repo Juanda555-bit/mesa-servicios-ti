@@ -99,7 +99,7 @@ def registrar_caso(sesion: Session, solicitante: Usuario, datos: esquemas.CasoNu
     """RF-02 / CA-01: el caso nace en Registrado, sin prioridad ni responsable."""
     dependencia = sesion.get(Dependencia, datos.dependencia_id)
     if dependencia is None or not dependencia.activa:
-        raise _error(status.HTTP_422_UNPROCESSABLE_ENTITY, "La dependencia no existe")
+        raise _error(422, "La dependencia no existe")
     caso = Caso(**datos.model_dump(), solicitante_id=solicitante.id, estado=Estado.REGISTRADO)
     sesion.add(caso)
     sesion.add(
@@ -134,7 +134,7 @@ def asignar_tecnico(sesion: Session, caso: Caso, coordinador: Usuario, tecnico_i
     """
     tecnico = sesion.get(Usuario, tecnico_id)
     if tecnico is None or tecnico.rol != Rol.TECNICO or not tecnico.activo:
-        raise _error(status.HTTP_422_UNPROCESSABLE_ENTITY, "El usuario no es un técnico activo")
+        raise _error(422, "El usuario no es un técnico activo")
 
     if caso.estado == Estado.EN_EVALUACION:
         sesion.add(Asignacion(caso=caso, tecnico_id=tecnico.id, asignado_por=coordinador.id))
