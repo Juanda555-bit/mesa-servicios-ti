@@ -50,21 +50,94 @@ Requisitos completos: [`docs/requisitos.md`](docs/requisitos.md)
 
 ## 4. Arquitectura, diseño de API y modelo de datos
 
-Por completar (Actividad 3: `docs/diseno.md`).
+- **Backend:** Python + FastAPI, con validación Pydantic y documentación automática en `/docs`.
+- **Base de datos:** SQLite con SQLAlchemy; esquema, índices, triggers y vistas en `backend/db/schema.sql`.
+- **Autenticación:** token JWT; contraseñas con hash PBKDF2-SHA256 y sal por usuario.
+- **Frontend:** React + Vite (pendiente).
+
+Arquitectura, modelo entidad-relación, máquina de estados, permisos por rol y especificación de la API: [`docs/diseno.md`](docs/diseno.md).
+
+Estructura del backend:
+
+```
+backend/
+├── app/
+│   ├── main.py          # aplicación, CORS y manejo de errores
+│   ├── config.py        # variables del .env
+│   ├── seguridad.py     # hash de contraseñas y tokens
+│   ├── deps.py          # usuario autenticado y control por rol
+│   ├── esquemas.py      # validación de entrada y salida
+│   ├── servicios.py     # reglas de negocio y flujo de estados
+│   └── routers/         # auth, catálogos, casos, coordinación
+├── db/                  # esquema SQL, conexión y modelos ORM
+├── tests/               # pruebas del esquema, modelos y API
+└── seed.py              # datos de prueba
+```
 
 ## 5. Configuración del entorno
 
-Por completar.
+Requisitos: Python 3.11 o superior y Git.
+
+```bash
+git clone https://github.com/Juanda555-bit/mesa-servicios-ti.git
+cd mesa-servicios-ti
+cp .env.example .env            # en Windows: copy .env.example .env
+cd backend
+python -m venv .venv
+.venv\Scripts\activate          # Windows (en Linux/Mac: source .venv/bin/activate)
+pip install -r requirements.txt
+python seed.py                  # crea la base y carga datos de prueba
+uvicorn app.main:app --reload
+```
+
+- API: http://localhost:8000 · Documentación interactiva: http://localhost:8000/docs
+- En `/docs`, botón **Authorize**: correo en *username* y la contraseña.
+
+Usuarios de prueba (contraseña `Mesa2026*`, datos ficticios):
+
+| Rol | Correo |
+|---|---|
+| Coordinador | coordinador@mesa.edu.co |
+| Técnico | tecnico1@mesa.edu.co, tecnico2@mesa.edu.co |
+| Solicitante | solicitante1@mesa.edu.co, solicitante2@mesa.edu.co |
+
+Para empezar de cero, borrar `backend/mesa_ti.db` y volver a ejecutar `python seed.py`.
 
 ## 6. Servicios web implementados
 
 | Método | Ruta | Descripción | Requisito relacionado |
 |---|---|---|---|
-| Por completar | Por completar | Por completar | Por completar |
+| GET | `/salud` | Estado del servicio | – |
+| POST | `/auth/login` | Inicia sesión y devuelve el token con el rol | RF-01 |
+| GET | `/auth/me` | Usuario autenticado | RF-01 |
+| GET | `/dependencias` | Catálogo de dependencias | RF-02 |
+| POST | `/casos` | Registrar caso (solicitante) | RF-02 |
+| GET | `/casos` | Listar casos según el rol (filtro `estado`) | RF-03 |
+| GET | `/casos/{id}` | Detalle con estado, responsable y solución | RF-03, RF-08 |
+| PATCH | `/casos/{id}/evaluacion` | Fijar prioridad (coordinador) | RF-04 |
+| PUT | `/casos/{id}/tecnico` | Asignar o reasignar técnico (coordinador) | RF-05 |
+| POST | `/casos/{id}/iniciar-atencion` | Iniciar atención (técnico responsable) | RF-07 |
+| POST | `/casos/{id}/intervenciones` | Registrar intervención (técnico responsable) | RF-06 |
+| POST | `/casos/{id}/resolver` | Registrar solución (técnico responsable) | RF-08 |
+| POST | `/casos/{id}/cerrar` | Cerrar caso (coordinador) | RF-08 |
+| GET | `/casos/{id}/historial` | Línea de tiempo del caso | RF-09 |
+| GET | `/tecnicos` | Técnicos activos (coordinador) | RF-05 |
+| GET | `/coordinacion/resumen` | Tablero consolidado (coordinador) | RF-10 |
+
+Errores: `400` transición inválida, `401` sin sesión, `403` rol o caso no autorizado, `404` caso inexistente, `409` regla de integridad, `422` datos inválidos.
 
 ## 7. Pruebas de API e integración y evidencias de funcionamiento
 
-Por completar (evidencias en `evidencias/`).
+Pruebas automáticas (desde `backend`, con el entorno activado):
+
+```bash
+python -m pytest tests -v
+```
+
+- `tests/test_modelos.py`: los modelos ORM coinciden con el esquema y la base protege sus reglas.
+- `tests/test_api.py`: las historias US-01 a US-10 sobre la API: login y permisos, validación del reporte, privacidad de casos, flujo completo de estados, reasignación, reglas RN-02 a RN-04 y tablero.
+
+Capturas y evidencias de funcionamiento: carpeta `evidencias/` (por completar).
 
 ## 8. Control de versiones
 
