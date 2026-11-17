@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 from sqlalchemy import select
 
-from db import Dependencia
+from backend.db import Dependencia
 
 from .. import esquemas, servicios
 from ..deps import Coordinador, SesionBD, UsuarioActual

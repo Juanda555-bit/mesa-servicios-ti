@@ -4,7 +4,7 @@ from fastapi import APIRouter, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from db import Estado, Rol, Usuario, VCasoDetalle, VLineaTiempo
+from backend.db import Estado, Rol, Usuario, VCasoDetalle, VLineaTiempo
 
 from .. import esquemas, servicios
 from ..deps import Coordinador, SesionBD, Solicitante, Tecnico, UsuarioActual

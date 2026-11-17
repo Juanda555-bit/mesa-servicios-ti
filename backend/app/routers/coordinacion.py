@@ -5,7 +5,7 @@ from collections import Counter
 from fastapi import APIRouter
 from sqlalchemy import select
 
-from db import Estado, VCasoDetalle
+from backend.db import Estado, VCasoDetalle
 
 from .. import esquemas, servicios
 from ..deps import Coordinador, SesionBD

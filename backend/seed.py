@@ -1,7 +1,7 @@
 """Datos iniciales de prueba (S-06). Todos los datos son ficticios.
 
-Ejecutar desde la carpeta backend:
-    python seed.py
+Ejecutar desde la raíz del repositorio:
+    .venv/Scripts/python.exe -m backend.seed
 
 Crea la base si no existe y, si aún no hay usuarios, carga:
 - un coordinador, dos técnicos y dos solicitantes (contraseña: Mesa2026*),
@@ -13,10 +13,10 @@ from datetime import date, timedelta
 
 from sqlalchemy import func, select
 
-from app import esquemas, servicios
-from app.seguridad import hash_password
-from db import Dependencia, Prioridad, Rol, SessionLocal, Usuario
-from db.database import engine, inicializar_base
+from backend.app import esquemas, servicios
+from backend.app.seguridad import hash_password
+from backend.db import Dependencia, Prioridad, Rol, SessionLocal, Usuario
+from backend.db.database import engine, inicializar_base
 
 PASSWORD_DEMO = "Mesa2026*"
 

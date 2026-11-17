@@ -6,7 +6,7 @@ import warnings
 
 from dotenv import load_dotenv
 
-from db.database import BACKEND_DIR
+from backend.db.database import BACKEND_DIR
 
 load_dotenv(BACKEND_DIR.parent / ".env")
 

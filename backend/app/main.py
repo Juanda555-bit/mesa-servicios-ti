@@ -1,7 +1,7 @@
 """Aplicación FastAPI de la Mesa de Servicios TI.
 
-Ejecutar desde la carpeta backend:
-    uvicorn app.main:app --reload
+Ejecutar desde la raíz del repositorio:
+    .venv/Scripts/python.exe -m uvicorn backend.app.main:app --reload
 Documentación interactiva (RNF-05): http://localhost:8000/docs
 """
 
@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 
-from db.database import engine, inicializar_base
+from backend.db.database import engine, inicializar_base
 
 from . import config
 from .routers import auth, casos, catalogos, coordinacion
@@ -24,7 +24,7 @@ log = logging.getLogger("mesa_ti")
 @asynccontextmanager
 async def ciclo_de_vida(_app: FastAPI):
     if inicializar_base(engine):
-        log.info("Base de datos creada desde schema.sql. Ejecute 'python seed.py' para datos de prueba.")
+        log.info("Base de datos creada desde schema.sql. Ejecute 'python -m backend.seed' para datos de prueba.")
     yield
 
 

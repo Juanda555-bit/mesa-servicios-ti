@@ -1,28 +1,27 @@
 """Pruebas de integración de la API (historias US-01 a US-10).
 
 Cada prueba usa una base SQLite temporal creada desde schema.sql.
-Ejecución (desde la carpeta backend):
-    python -m pytest tests -v
+Ejecución (desde la raíz del repositorio):
+    .venv/Scripts/python.exe -m pytest backend -q
 """
 
-import tempfile
+import re
 from datetime import date, timedelta
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker
 
-from app.main import app
-from app.seguridad import crear_token, hash_password
-from db import Dependencia, Rol, Usuario, crear_engine, get_session, inicializar_base
+from backend.app.main import app
+from backend.app.seguridad import crear_token, hash_password
+from backend.db import Dependencia, Rol, Usuario, crear_engine, get_session, inicializar_base
 
 PASSWORD = "Clave123*"
 
 
 @pytest.fixture()
-def entorno():
-    ruta = Path(tempfile.mkdtemp(prefix="mesa_api_")) / "prueba.db"
+def entorno(tmp_path):
+    ruta = tmp_path / "prueba.db"
     engine = crear_engine(f"sqlite:///{ruta.as_posix()}")
     inicializar_base(engine)
     Sesion = sessionmaker(bind=engine, expire_on_commit=False)
@@ -63,6 +62,41 @@ def entorno():
     yield cliente, encabezados, ids
     app.dependency_overrides.clear()
     engine.dispose()
+
+
+PARES_ESPERADOS = {
+    ("GET", "/salud"),
+    ("POST", "/auth/login"),
+    ("GET", "/auth/me"),
+    ("GET", "/dependencias"),
+    ("POST", "/casos"),
+    ("GET", "/casos"),
+    ("GET", "/casos/{id}"),
+    ("PATCH", "/casos/{id}/evaluacion"),
+    ("PUT", "/casos/{id}/tecnico"),
+    ("POST", "/casos/{id}/iniciar-atencion"),
+    ("POST", "/casos/{id}/intervenciones"),
+    ("POST", "/casos/{id}/resolver"),
+    ("POST", "/casos/{id}/cerrar"),
+    ("GET", "/casos/{id}/historial"),
+    ("GET", "/tecnicos"),
+    ("GET", "/coordinacion/resumen"),
+}
+
+
+def test_salud_y_openapi_exponen_los_16_pares():
+    cliente = TestClient(app)  # sin "with": no dispara el lifespan
+    assert cliente.get("/salud").status_code == 200
+    r = cliente.get("/openapi.json")
+    assert r.status_code == 200
+    metodos = {"get", "post", "put", "patch", "delete"}
+    obtenidos = {
+        (m.upper(), re.sub(r"\{[^}]+\}", "{id}", ruta))
+        for ruta, ops in r.json()["paths"].items()
+        for m in ops
+        if m in metodos
+    }
+    assert obtenidos == PARES_ESPERADOS
 
 
 def _reporte(**cambios):
@@ -122,7 +156,7 @@ def test_rutas_protegidas(entorno):
 
 
 def test_password_no_en_texto_plano(entorno):
-    from app.seguridad import verificar_password
+    from backend.app.seguridad import verificar_password
 
     guardado = hash_password("secreto")
     assert "secreto" not in guardado
@@ -292,3 +326,63 @@ def test_catalogos(entorno):
     nombres = [t["nombre"] for t in cliente.get("/tecnicos", headers=h["coord"]).json()]
     assert nombres == ["Técnico Dos", "Técnico Uno"]
     assert cliente.get("/tecnicos", headers=h["sol1"]).status_code == 403
+
+
+# ---------------------------------------------------------------- RF-8 (cobertura 001)
+
+def test_solicitante_403_en_acciones_de_coordinador(entorno):
+    # RN-07 / CA-US04.3, CA-US08.4, CA-US10.3
+    cliente, h, _ = entorno
+    caso = _crear(cliente, h)
+    r = cliente.patch(f"/casos/{caso}/evaluacion", json={"prioridad": "Alta"}, headers=h["sol1"])
+    assert r.status_code == 403
+    assert cliente.post(f"/casos/{caso}/cerrar", headers=h["sol1"]).status_code == 403
+    assert cliente.get("/coordinacion/resumen", headers=h["sol1"]).status_code == 403
+    assert cliente.get(f"/casos/{caso}", headers=h["coord"]).json()["estado"] == "Registrado"
+
+
+def test_404_con_rol_permitido_sobre_caso_inexistente(entorno):
+    # CA-US03.3, CA-US06.3 / RN-06: el 404 se evalúa con el rol permitido y cuerpo válido
+    cliente, h, ids = entorno
+    inexistente = 999
+    intervencion = {"descripcion": "Se revisa el equipo en sitio", "duracion_min": 15}
+    peticiones = [
+        ("PATCH", "evaluacion", {"prioridad": "Alta"}, "coord"),
+        ("PUT", "tecnico", {"tecnico_id": ids["tec1"]}, "coord"),
+        ("POST", "iniciar-atencion", None, "tec1"),
+        ("POST", "intervenciones", intervencion, "tec1"),
+        ("POST", "resolver", {"solucion": "Equipo reparado"}, "tec1"),
+        ("POST", "cerrar", None, "coord"),
+        ("GET", "historial", None, "coord"),
+    ]
+    for metodo, accion, cuerpo, quien in peticiones:
+        kwargs = {"headers": h[quien]}
+        if cuerpo is not None:
+            kwargs["json"] = cuerpo
+        r = cliente.request(metodo, f"/casos/{inexistente}/{accion}", **kwargs)
+        assert r.status_code == 404, f"{metodo} {accion}: {r.status_code} {r.text}"
+
+
+@pytest.mark.parametrize("metodo", ["PUT", "PATCH", "DELETE"])
+def test_intervencion_no_editable_ni_borrable(entorno, metodo):
+    # RN-05 / CA-US06.3: no existen rutas de edición ni borrado de intervenciones
+    cliente, h, ids = entorno
+    caso = _hasta_atencion(cliente, h, ids)
+    datos = {"descripcion": "Se cambia la fuente de poder", "duracion_min": 40}
+    creada = cliente.post(f"/casos/{caso}/intervenciones", json=datos, headers=h["tec1"])
+    assert creada.status_code == 201
+    inter_id = creada.json()["id"]
+    antes = cliente.get(f"/casos/{caso}/historial", headers=h["coord"]).json()
+    assert any(e["tipo"] == "intervencion" for e in antes)
+
+    rutas = [f"/casos/{caso}/intervenciones", f"/casos/{caso}/intervenciones/{inter_id}"]
+    for ruta in rutas:
+        for quien in ("tec1", "coord"):
+            kwargs = {"headers": h[quien]}
+            if metodo != "DELETE":
+                kwargs["json"] = {"descripcion": "Texto alterado", "duracion_min": 1}
+            r = cliente.request(metodo, ruta, **kwargs)
+            assert not (200 <= r.status_code < 300), f"{metodo} {ruta}: {r.status_code}"
+
+    despues = cliente.get(f"/casos/{caso}/historial", headers=h["coord"]).json()
+    assert despues == antes

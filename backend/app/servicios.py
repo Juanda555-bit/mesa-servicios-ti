@@ -8,7 +8,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from db import (
+from backend.db import (
     Asignacion,
     Caso,
     Dependencia,
@@ -19,7 +19,7 @@ from db import (
     Rol,
     Usuario,
 )
-from db.models import ahora_utc
+from backend.db.models import ahora_utc
 
 from . import esquemas
 

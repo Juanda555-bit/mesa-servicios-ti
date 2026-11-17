@@ -5,7 +5,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
-from db import Estado, Prioridad, Rol
+from backend.db import Estado, Prioridad, Rol
 
 Texto = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 TextoLargo = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=4000)]
