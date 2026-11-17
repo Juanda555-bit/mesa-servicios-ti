@@ -1,0 +1,62 @@
+{
+  "prueba": "PF-07",
+  "intercambios": [
+    {
+      "peticion": "POST /casos",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": {
+        "placa_equipo": "PF-020",
+        "nombre_usuario": "Ana Prueba",
+        "telefono": "33333333333333333333",
+        "fecha": "2026-11-10",
+        "descripcion": "Descripcion suficientemente larga",
+        "dependencia_id": 1
+      },
+      "codigo_http": 201,
+      "respuesta": {
+        "id": 6,
+        "placa_equipo": "PF-020",
+        "nombre_usuario": "Ana Prueba",
+        "telefono": "33333333333333333333",
+        "fecha": "2026-11-10",
+        "descripcion": "Descripcion suficientemente larga",
+        "estado": "Registrado",
+        "prioridad": null,
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:07.601000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Biblioteca",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": null,
+        "tecnico": null
+      }
+    },
+    {
+      "peticion": "GET /casos/6",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 6,
+        "placa_equipo": "PF-020",
+        "nombre_usuario": "Ana Prueba",
+        "telefono": "33333333333333333333",
+        "fecha": "2026-11-10",
+        "descripcion": "Descripcion suficientemente larga",
+        "estado": "Registrado",
+        "prioridad": null,
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:07.601000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Biblioteca",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": null,
+        "tecnico": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "prueba": "PF-05",
+  "intercambios": [
+    {
+      "peticion": "GET /casos",
+      "autenticado_como": "sin token",
+      "cuerpo_enviado": null,
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "No autenticado o token inválido"
+      }
+    },
+    {
+      "peticion": "PATCH /casos/1/evaluacion",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": {
+        "prioridad": "Alta"
+      },
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    },
+    {
+      "peticion": "GET /coordinacion/resumen",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    },
+    {
+      "peticion": "POST /casos",
+      "autenticado_como": "tecnico1",
+      "cuerpo_enviado": {
+        "placa_equipo": "X-1",
+        "nombre_usuario": "Ana",
+        "telefono": "3001234567",
+        "fecha": "2026-11-10",
+        "descripcion": "Descripcion suficientemente larga",
+        "dependencia_id": 1
+      },
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    },
+    {
+      "peticion": "GET /coordinacion/resumen",
+      "autenticado_como": "solicitante1 con claim rol=coordinador agregado (firma valida)",
+      "cuerpo_enviado": null,
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    }
+  ]
+}

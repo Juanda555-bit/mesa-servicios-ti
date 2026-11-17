@@ -1,0 +1,464 @@
+{
+  "prueba": "PF-09",
+  "intercambios": [
+    {
+      "peticion": "POST /casos",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": {
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "dependencia_id": 3
+      },
+      "codigo_http": 201,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "Registrado",
+        "prioridad": null,
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": null,
+        "tecnico": null
+      }
+    },
+    {
+      "peticion": "GET /casos/7",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "Registrado",
+        "prioridad": null,
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": null,
+        "tecnico": null
+      }
+    },
+    {
+      "peticion": "POST /casos/7/resolver",
+      "autenticado_como": "tecnico1 (caso no asignado)",
+      "cuerpo_enviado": {
+        "solucion": "intento prematuro de resolver"
+      },
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    },
+    {
+      "peticion": "PATCH /casos/7/evaluacion",
+      "autenticado_como": "coordinador",
+      "cuerpo_enviado": {
+        "prioridad": "Alta"
+      },
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "En evaluación",
+        "prioridad": "Alta",
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": null,
+        "tecnico": null
+      }
+    },
+    {
+      "peticion": "PUT /casos/7/tecnico",
+      "autenticado_como": "coordinador",
+      "cuerpo_enviado": {
+        "tecnico_id": 2
+      },
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "Asignado",
+        "prioridad": "Alta",
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": 2,
+        "tecnico": "Tomás Técnico"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/iniciar-atencion",
+      "autenticado_como": "tecnico1",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "En atención",
+        "prioridad": "Alta",
+        "solucion": null,
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": null,
+        "cerrado_en": null,
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": 2,
+        "tecnico": "Tomás Técnico"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/resolver",
+      "autenticado_como": "tecnico1 sin intervencion (RN-03)",
+      "cuerpo_enviado": {
+        "solucion": "Sin intervenciones previas todavia"
+      },
+      "codigo_http": 400,
+      "respuesta": {
+        "detalle": "Registre al menos una intervención antes de resolver el caso"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/intervenciones",
+      "autenticado_como": "tecnico1",
+      "cuerpo_enviado": {
+        "descripcion": "Se reemplazo la fuente de poder",
+        "duracion_min": 45
+      },
+      "codigo_http": 201,
+      "respuesta": {
+        "id": 3,
+        "caso_id": 7,
+        "tecnico_id": 2,
+        "descripcion": "Se reemplazo la fuente de poder",
+        "duracion_min": 45,
+        "creado_en": "2026-11-17T08:25:40.581000Z"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/cerrar",
+      "autenticado_como": "coordinador (aun En atencion, debe ser 400)",
+      "cuerpo_enviado": null,
+      "codigo_http": 400,
+      "respuesta": {
+        "detalle": "Transición no permitida: En atención → Cerrado"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/resolver",
+      "autenticado_como": "tecnico1",
+      "cuerpo_enviado": {
+        "solucion": "Fuente de poder reemplazada y equipo probado"
+      },
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "Resuelto",
+        "prioridad": "Alta",
+        "solucion": "Fuente de poder reemplazada y equipo probado",
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": "2026-11-17T08:25:44.635000Z",
+        "cerrado_en": null,
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": 2,
+        "tecnico": "Tomás Técnico"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/cerrar",
+      "autenticado_como": "coordinador",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "Cerrado",
+        "prioridad": "Alta",
+        "solucion": "Fuente de poder reemplazada y equipo probado",
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": "2026-11-17T08:25:44.635000Z",
+        "cerrado_en": "2026-11-17T08:25:46.679000Z",
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": 2,
+        "tecnico": "Tomás Técnico"
+      }
+    },
+    {
+      "peticion": "POST /casos/7/cerrar",
+      "autenticado_como": "coordinador (caso ya Cerrado, debe ser 400)",
+      "cuerpo_enviado": null,
+      "codigo_http": 400,
+      "respuesta": {
+        "detalle": "El caso está cerrado y no admite cambios"
+      }
+    },
+    {
+      "peticion": "GET /casos/7",
+      "autenticado_como": "solicitante1 consulta el resultado",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 7,
+        "placa_equipo": "LAB-077",
+        "nombre_usuario": "Pedro Ficticio",
+        "telefono": "3105550000",
+        "fecha": "2026-11-15",
+        "descripcion": "El equipo del laboratorio no arranca el sistema",
+        "estado": "Cerrado",
+        "prioridad": "Alta",
+        "solucion": "Fuente de poder reemplazada y equipo probado",
+        "creado_en": "2026-11-17T08:25:24.288000Z",
+        "resuelto_en": "2026-11-17T08:25:44.635000Z",
+        "cerrado_en": "2026-11-17T08:25:46.679000Z",
+        "dependencia": "Laboratorio de sistemas",
+        "solicitante_id": 4,
+        "solicitante": "Sara Solicitante",
+        "tecnico_id": 2,
+        "tecnico": "Tomás Técnico"
+      }
+    },
+    {
+      "peticion": "GET /casos/7/historial",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": [
+        {
+          "momento": "2026-11-17T08:25:24.289000Z",
+          "tipo": "cambio_estado",
+          "autor_id": 4,
+          "autor": "Sara Solicitante",
+          "detalle": "Inicio → Registrado: Caso reportado"
+        },
+        {
+          "momento": "2026-11-17T08:25:30.371000Z",
+          "tipo": "cambio_estado",
+          "autor_id": 1,
+          "autor": "Carla Coordinadora",
+          "detalle": "Registrado → En evaluación: Prioridad: Alta"
+        },
+        {
+          "momento": "2026-11-17T08:25:34.430000Z",
+          "tipo": "asignacion",
+          "autor_id": 1,
+          "autor": "Carla Coordinadora",
+          "detalle": "Responsable: Tomás Técnico"
+        },
+        {
+          "momento": "2026-11-17T08:25:34.432000Z",
+          "tipo": "cambio_estado",
+          "autor_id": 1,
+          "autor": "Carla Coordinadora",
+          "detalle": "En evaluación → Asignado"
+        },
+        {
+          "momento": "2026-11-17T08:25:36.485000Z",
+          "tipo": "cambio_estado",
+          "autor_id": 2,
+          "autor": "Tomás Técnico",
+          "detalle": "Asignado → En atención"
+        },
+        {
+          "momento": "2026-11-17T08:25:40.581000Z",
+          "tipo": "intervencion",
+          "autor_id": 2,
+          "autor": "Tomás Técnico",
+          "detalle": "Se reemplazo la fuente de poder (45 min)"
+        },
+        {
+          "momento": "2026-11-17T08:25:44.637000Z",
+          "tipo": "cambio_estado",
+          "autor_id": 2,
+          "autor": "Tomás Técnico",
+          "detalle": "En atención → Resuelto"
+        },
+        {
+          "momento": "2026-11-17T08:25:46.683000Z",
+          "tipo": "cambio_estado",
+          "autor_id": 1,
+          "autor": "Carla Coordinadora",
+          "detalle": "Resuelto → Cerrado"
+        }
+      ]
+    },
+    {
+      "peticion": "GET /coordinacion/resumen",
+      "autenticado_como": "coordinador",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "total": 7,
+        "abiertos": 5,
+        "cerrados": 2,
+        "por_estado": {
+          "Registrado": 2,
+          "En evaluación": 1,
+          "Asignado": 1,
+          "En atención": 1,
+          "Resuelto": 0,
+          "Cerrado": 2
+        },
+        "por_tecnico": [
+          {
+            "tecnico_id": 3,
+            "tecnico": "Teresa Técnica",
+            "abiertos": 1,
+            "cerrados": 1
+          },
+          {
+            "tecnico_id": 2,
+            "tecnico": "Tomás Técnico",
+            "abiertos": 1,
+            "cerrados": 1
+          }
+        ],
+        "sin_asignar": 3,
+        "casos_abiertos": [
+          {
+            "id": 6,
+            "placa_equipo": "PF-020",
+            "estado": "Registrado",
+            "prioridad": null,
+            "tecnico": null,
+            "creado_en": "2026-11-17T08:25:07.601000Z",
+            "cerrado_en": null
+          },
+          {
+            "id": 4,
+            "placa_equipo": "REC-007",
+            "estado": "En atención",
+            "prioridad": "Crítica",
+            "tecnico": "Teresa Técnica",
+            "creado_en": "2026-11-17T08:24:23.682000Z",
+            "cerrado_en": null
+          },
+          {
+            "id": 2,
+            "placa_equipo": "SEC-031",
+            "estado": "En evaluación",
+            "prioridad": "Media",
+            "tecnico": null,
+            "creado_en": "2026-11-17T08:24:23.678000Z",
+            "cerrado_en": null
+          },
+          {
+            "id": 3,
+            "placa_equipo": "LAB-102",
+            "estado": "Asignado",
+            "prioridad": "Alta",
+            "tecnico": "Tomás Técnico",
+            "creado_en": "2026-11-17T08:24:23.678000Z",
+            "cerrado_en": null
+          },
+          {
+            "id": 1,
+            "placa_equipo": "BIB-014",
+            "estado": "Registrado",
+            "prioridad": null,
+            "tecnico": null,
+            "creado_en": "2026-11-17T08:24:23.676000Z",
+            "cerrado_en": null
+          }
+        ],
+        "casos_cerrados": [
+          {
+            "id": 7,
+            "placa_equipo": "LAB-077",
+            "estado": "Cerrado",
+            "prioridad": "Alta",
+            "tecnico": "Tomás Técnico",
+            "creado_en": "2026-11-17T08:25:24.288000Z",
+            "cerrado_en": "2026-11-17T08:25:46.679000Z"
+          },
+          {
+            "id": 5,
+            "placa_equipo": "TES-020",
+            "estado": "Cerrado",
+            "prioridad": "Baja",
+            "tecnico": "Teresa Técnica",
+            "creado_en": "2026-11-17T08:24:23.686000Z",
+            "cerrado_en": "2026-11-17T08:24:23.690000Z"
+          }
+        ]
+      }
+    },
+    {
+      "peticion": "PUT /casos/7/intervenciones/1",
+      "autenticado_como": "tecnico1 (RN-05)",
+      "cuerpo_enviado": {
+        "descripcion": "x",
+        "duracion_min": 1
+      },
+      "codigo_http": 404,
+      "respuesta": {
+        "detalle": "Recurso no encontrado"
+      }
+    },
+    {
+      "peticion": "DELETE /casos/7/intervenciones/1",
+      "autenticado_como": "tecnico1 (RN-05)",
+      "cuerpo_enviado": {
+        "descripcion": "x",
+        "duracion_min": 1
+      },
+      "codigo_http": 404,
+      "respuesta": {
+        "detalle": "Recurso no encontrado"
+      }
+    }
+  ]
+}

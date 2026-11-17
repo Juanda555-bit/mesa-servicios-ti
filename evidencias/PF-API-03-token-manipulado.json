@@ -1,0 +1,32 @@
+{
+  "prueba": "PF-03",
+  "intercambios": [
+    {
+      "peticion": "GET /casos",
+      "autenticado_como": "token con firma alterada",
+      "cuerpo_enviado": null,
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "No autenticado o token inválido"
+      }
+    },
+    {
+      "peticion": "GET /casos",
+      "autenticado_como": "payload alterado (sub=1) con firma original",
+      "cuerpo_enviado": null,
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "No autenticado o token inválido"
+      }
+    },
+    {
+      "peticion": "GET /casos",
+      "autenticado_como": "token no JWT",
+      "cuerpo_enviado": null,
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "No autenticado o token inválido"
+      }
+    }
+  ]
+}

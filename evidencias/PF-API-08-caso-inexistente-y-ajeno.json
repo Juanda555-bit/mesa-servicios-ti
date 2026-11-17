@@ -1,0 +1,41 @@
+{
+  "prueba": "PF-08",
+  "intercambios": [
+    {
+      "peticion": "GET /casos/999999",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 404,
+      "respuesta": {
+        "detalle": "El caso no existe"
+      }
+    },
+    {
+      "peticion": "GET /casos/999999",
+      "autenticado_como": "coordinador",
+      "cuerpo_enviado": null,
+      "codigo_http": 404,
+      "respuesta": {
+        "detalle": "El caso no existe"
+      }
+    },
+    {
+      "peticion": "GET /casos/6",
+      "autenticado_como": "solicitante2 sobre caso de solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    },
+    {
+      "peticion": "GET /casos/6/historial",
+      "autenticado_como": "solicitante2 sobre caso de solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    }
+  ]
+}

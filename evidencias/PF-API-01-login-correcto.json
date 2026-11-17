@@ -1,0 +1,40 @@
+{
+  "prueba": "PF-01",
+  "intercambios": [
+    {
+      "peticion": "POST /auth/login",
+      "autenticado_como": null,
+      "cuerpo_enviado": {
+        "correo": "solicitante1@mesa.edu.co",
+        "password": "Mesa2026*"
+      },
+      "codigo_http": 200,
+      "respuesta": {
+        "access_token": "<TOKEN-OMITIDO>",
+        "token_type": "bearer",
+        "rol": "solicitante",
+        "nombre": "Sara Solicitante"
+      }
+    },
+    {
+      "peticion": "GET /auth/me",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": null,
+      "codigo_http": 200,
+      "respuesta": {
+        "id": 4,
+        "nombre": "Sara Solicitante",
+        "correo": "solicitante1@mesa.edu.co",
+        "rol": "solicitante"
+      }
+    }
+  ],
+  "payload_decodificado_sin_verificar": {
+    "sub": "4",
+    "exp": 1794932670
+  },
+  "claims": [
+    "exp",
+    "sub"
+  ]
+}
