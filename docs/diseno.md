@@ -1,6 +1,6 @@
 # Diseño – Mesa de Servicios TI
 
-> **Estado:** borrador para revisión del equipo (Actividad 3). Parte de `docs/requisitos.md`.
+> **Estado:** Aprobado por el equipo e implementado en la API (16/11/2026). Parte de `docs/requisitos.md`.
 > El esquema SQL ejecutable está en `backend/db/schema.sql`.
 
 ## 1. Decisiones técnicas
@@ -164,6 +164,7 @@ El esquema se probó con 45 operaciones en SQLite 3.49: un flujo completo válid
 - **Acceso a datos:** modelos SQLAlchemy en `backend/db/models.py` (una clase por tabla y dos vistas de solo lectura). Los estados, roles y prioridades son enumeraciones, y las fechas se leen como `datetime` en UTC.
 - **Conexión:** `backend/db/database.py` activa `PRAGMA foreign_keys = ON` en cada conexión y ofrece `get_session()` para FastAPI. La ruta de la base se toma de `DATABASE_URL` o, si falta, de `backend/mesa_ti.db`.
 - **Pruebas:** `backend/tests/test_modelos.py` comprueba que los modelos coinciden con el esquema real (columnas, nulabilidad, claves primarias y foráneas), el flujo completo con el ORM y las protecciones de la base. Resultado: 5 correctas, 0 fallidas.
+- **Pruebas de la API:** `backend/tests/test_api.py` recorre los endpoints por historia de usuario. Resultado: 25 correctas, 0 fallidas (30 con las de `test_modelos.py`).
 
 ## 4. Máquina de estados
 
@@ -201,7 +202,7 @@ stateDiagram-v2
 | Método | Ruta | Descripción | Rol | Requisito |
 |---|---|---|---|---|
 | GET | `/salud` | Estado del servicio | público | – |
-| POST | `/auth/login` | Devuelve token con el rol | público | RF-01 |
+| POST | `/auth/login` | Devuelve token con el rol y el nombre | público | RF-01 |
 | GET | `/auth/me` | Usuario autenticado | todos | RF-01 |
 | GET | `/dependencias` | Catálogo para el formulario | todos | RF-02 |
 | POST | `/casos` | Registrar caso | solicitante | RF-02, CA-01 |
@@ -219,7 +220,9 @@ stateDiagram-v2
 
 \* Solo si el caso le corresponde al usuario (RN-06).
 
-Códigos de error (RNF-04): `400` transición de estado inválida, `401` sin token o token inválido, `403` rol o caso no autorizado, `404` caso inexistente, `422` datos inválidos. Sin trazas internas en las respuestas.
+Códigos de error (RNF-04): `400` transición de estado inválida, `401` sin token o token inválido, `403` rol o caso no autorizado, `404` caso inexistente, `422` datos inválidos y `500` error interno inesperado, con un mensaje genérico. Sin trazas internas en las respuestas.
+
+Login: `POST /auth/login` recibe un formulario (`application/x-www-form-urlencoded`) con `username` (el correo del usuario) y `password`. Responde `{access_token, token_type, rol, nombre}`, con `token_type` igual a `"bearer"`; el token se envía después en la cabecera `Authorization: Bearer <token>`.
 
 Ejemplo de registro:
 
@@ -236,6 +239,14 @@ POST /casos
 ```
 
 Respuesta `201`: caso con `estado: "Registrado"`, `prioridad: null`, `tecnico: null`.
+
+**Pendientes para la próxima entrega del backend:**
+- Devolver `400` (y no `409`) cuando la base rechaza una operación por una regla de negocio.
+- Definir una única clave para el cuerpo de los errores y unificarla en toda la API.
+- Retirar una dependencia de hash declarada en `backend/requirements.txt` que no se usa.
+- Separar las capas: que los servicios no dependan de las excepciones HTTP y documentar la estructura final de carpetas.
+- Quitar las dos validaciones no pactadas restantes: el formato del teléfono por patrón y la duración máxima de la intervención.
+- La validación "intervención solo con el caso `En atención`" no es un pendiente: se mantiene como supuesto EQ-06 (ver `docs/entrevista.md`).
 
 ## 7. Prototipos de interfaz (descripción)
 

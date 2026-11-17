@@ -1,6 +1,6 @@
 # Matriz de trazabilidad
 
-Esta matriz relaciona cada condición de aceptación (CA) con su requisito aprobado, su implementación, su pull request y su prueba. Se irá completando en cada PR; ya existen la capa de datos (`backend/db/`) y la API REST (sin interfaz), cubiertas por pruebas de pytest, por lo que solo el pull request y las pruebas funcionales y de interfaz figuran como "Por completar".
+Esta matriz relaciona cada condición de aceptación (CA) con su requisito, su implementación, su pull request y su prueba. Una condición se cumple cuando tiene implementación y prueba. La columna "Pull request" registra en qué PR se integra el cambio, como evidencia del trabajo colaborativo que piden las Actividades 5 y 7 de la guía. Hoy existen la capa de datos (`backend/db/`) y la API REST (sin interfaz), cubiertas por pytest; el "Pull request" y las pruebas funcionales y de interfaz siguen "Por completar".
 
 | Condición | Requisito aprobado | Implementación (ruta/componente) | Pull request | Prueba |
 |---|---|---|---|---|
