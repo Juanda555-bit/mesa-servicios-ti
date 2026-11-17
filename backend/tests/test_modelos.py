@@ -1,9 +1,9 @@
 """Verifica que los modelos ORM coinciden con schema.sql y que el flujo básico
 funciona de punta a punta sobre una base temporal.
 
-Ejecución (desde la carpeta backend):
-    python -m tests.test_modelos          # sin dependencias extra
-    python -m pytest tests                # si pytest está instalado
+Ejecución (desde la raíz del repositorio):
+    .venv/Scripts/python.exe -m backend.tests.test_modelos   # sin dependencias extra
+    .venv/Scripts/python.exe -m pytest backend -q            # con pytest
 """
 
 import sqlite3
@@ -16,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
-from db import (
+from backend.db import (
     Asignacion,
     Base,
     Caso,

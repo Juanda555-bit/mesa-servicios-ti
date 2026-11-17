@@ -3,7 +3,7 @@
 Proyecto Final 02 (PF-02) · Aplicaciones y Servicios Web · Tecnología en Desarrollo de Software.
 Aplicación web para registrar, atender, dar seguimiento y cerrar casos de soporte tecnológico de una institución educativa.
 
-> **Estado del proyecto:** Actividad 2 (requisitos y entrevista) completada y aprobada por el docente. Las demás secciones se completarán conforme avance el desarrollo.
+> **Estado del proyecto:** requisitos aprobados por el docente (12/11/2026); diseño en borrador para revisión del equipo (Actividad 3, `docs/diseno.md`); capa de base de datos implementada y probada (`backend/db/` con `schema.sql`, `models.py` y `database.py`; pruebas `backend/db/probar_esquema.py` y `backend/tests/test_modelos.py`). Aún no hay API, autenticación, datos de ejemplo ni interfaz.
 
 ## 1. Información general
 
@@ -42,7 +42,7 @@ Requisitos completos: [`docs/requisitos.md`](docs/requisitos.md)
 **Evidencia de la entrevista y decisiones confirmadas**
 - Registro de la entrevista con las respuestas del docente, las decisiones confirmadas y los cambios a los requisitos: [`docs/entrevista.md`](docs/entrevista.md)
 - Especificación y guía de la entrevista (actores, permisos, RF, RN, RNF y supuestos): [`docs/especificacion_y_entrevista_docente.md`](docs/especificacion_y_entrevista_docente.md)
-- Aprobación: el docente revisó la delimitación y respondió que la veía bien y que siguieran adelante. La fecha exacta de aprobación está pendiente de registrar.
+- Aprobación: el docente revisó la delimitación y respondió que la veía bien y que siguieran adelante. La entrevista y la aprobación son del 12/11/2026.
 
 **Requisitos priorizados, historias de usuario y criterios de aceptación**
 - 10 requisitos funcionales (RF-01 a RF-10), 10 reglas de negocio (RN-01 a RN-10), 7 requisitos no funcionales (RNF-01 a RNF-07) y 7 supuestos.
@@ -50,7 +50,7 @@ Requisitos completos: [`docs/requisitos.md`](docs/requisitos.md)
 
 ## 4. Arquitectura, diseño de API y modelo de datos
 
-Por completar (Actividad 3: `docs/diseno.md`).
+Borrador de la Actividad 3, en revisión del equipo: [`docs/diseno.md`](docs/diseno.md).
 
 ## 5. Configuración del entorno
 
@@ -64,7 +64,7 @@ Por completar.
 
 ## 7. Pruebas de API e integración y evidencias de funcionamiento
 
-Por completar (evidencias en `evidencias/`).
+Por completar (evidencias en `evidencias/`). Matriz de trazabilidad: [`docs/trazabilidad.md`](docs/trazabilidad.md).
 
 ## 8. Control de versiones
 

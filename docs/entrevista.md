@@ -1,6 +1,6 @@
 # Registro de entrevista con el cliente (docente)
 
-- **Fecha:** Pendiente por definir
+- **Fecha:** 12/11/2026
 - **Participantes:** Juan David Arias Ospina, Simón Herrera, Docente Juan Carlos Morales Guerra
 - **Medio:** Presencial / Asesoría de clase
 - **Objetivo:** Validar y aprobar el alcance, flujo de atención y reglas del sistema según la Actividad 2 de la Guía PF-02.
@@ -50,4 +50,4 @@
 - **RF-10:** el consolidado muestra casos abiertos, casos cerrados y fechas. Se conservó el desglose por técnico porque CA-06 de la guía pide responsables.
 - **S-06:** usuarios predeterminados (seeder) por rol.
 - **Cancelación (decisión del equipo, posterior a la entrevista):** se elimina el estado `Cancelado` y la cancelación por el solicitante, porque el docente no la mencionó.
-- **Pendientes:** las categorías (S-02) ya no se usan en el reporte.
+- **Pendientes:** ~~las categorías (S-02) ya no se usan en el reporte.~~ *RESUELTO: S-02 retirado en `docs/requisitos.md` (RF-3).*

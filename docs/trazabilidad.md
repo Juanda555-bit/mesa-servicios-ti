@@ -1,0 +1,12 @@
+# Matriz de trazabilidad
+
+Esta matriz relaciona cada condición de aceptación (CA) con su requisito aprobado, su implementación, su pull request y su prueba. Se irá completando en cada PR; hoy solo existe la capa de datos (`backend/db/`), por lo que los endpoints, los PR y las pruebas de API y funcionales figuran como "Por completar".
+
+| Condición | Requisito aprobado | Implementación (ruta/componente) | Pull request | Prueba |
+|---|---|---|---|---|
+| CA-01 | RF-01, RF-02 | Capa de BD en `backend/db/` (`schema.sql`, `models.py`): tablas `caso`, `historial_estado`. Endpoint `POST /casos`: Por completar | Por completar | `backend/db/probar_esquema.py`, `backend/tests/test_modelos.py` (capa de BD). API y funcionales: Por completar |
+| CA-02 | RF-01, RF-04, RF-05, RF-07 | Capa de BD en `backend/db/` (`schema.sql`, `models.py`): tablas `caso`, `asignacion`, `historial_estado`. Endpoints `PATCH /casos/{id}/evaluacion`, `PUT /casos/{id}/tecnico`, `POST .../iniciar-atencion`: Por completar | Por completar | `backend/db/probar_esquema.py`, `backend/tests/test_modelos.py` (capa de BD). API y funcionales: Por completar |
+| CA-03 | RF-01, RF-03, RF-05, RF-07 | Capa de BD en `backend/db/` (`schema.sql`, `models.py`): vista `v_caso_detalle`. Endpoints `GET /casos`, `GET /casos/{id}`: Por completar | Por completar | `backend/db/probar_esquema.py`, `backend/tests/test_modelos.py` (capa de BD). API y funcionales: Por completar |
+| CA-04 | RF-01, RF-06, RF-09 | Capa de BD en `backend/db/` (`schema.sql`, `models.py`): tabla `intervencion`, vista `v_linea_tiempo`. Endpoints `POST .../intervenciones`, `GET .../historial`: Por completar | Por completar | `backend/db/probar_esquema.py`, `backend/tests/test_modelos.py` (capa de BD). API y funcionales: Por completar |
+| CA-05 | RF-01, RF-03, RF-08 | Capa de BD en `backend/db/` (`schema.sql`, `models.py`): tablas `caso`, `historial_estado`. Endpoints `POST .../resolver`, `POST .../cerrar`, `GET /casos/{id}`: Por completar | Por completar | `backend/db/probar_esquema.py`, `backend/tests/test_modelos.py` (capa de BD). API y funcionales: Por completar |
+| CA-06 | RF-01, RF-10 | Capa de BD en `backend/db/` (`schema.sql`, `models.py`): tablas `caso`, `asignacion`, `usuario`. Endpoint `GET /coordinacion/resumen`: Por completar | Por completar | `backend/db/probar_esquema.py`, `backend/tests/test_modelos.py` (capa de BD). API y funcionales: Por completar |

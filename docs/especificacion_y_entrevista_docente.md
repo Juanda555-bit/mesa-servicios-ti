@@ -65,8 +65,8 @@ Cada requisito responde directamente a las **Condiciones de Aceptación Obligato
 |---|---|---|---|
 | **RF-01** | **Autenticación y Control de Acceso (RBAC)** | Todas | **Éxito:** Usuario autenticado recibe credencial de sesión con su rol (`solicitante`, `tecnico`, `coordinador`).<br>**Validación:** Operaciones sobre rutas protegidas sin token o con rol no autorizado devuelven `401 Unauthorized` o `403 Forbidden`. |
 | **RF-02** | **Registro de Caso (Incidente / Solicitud)** | **CA-01** | **Éxito:** Solicitante envía formulario con placa del equipo, nombre del usuario, teléfono, fecha, descripción (mínimo 15 caracteres) y dependencia. Incidentes y solicitudes comparten el mismo flujo. El sistema persiste el caso con estado inicial `Registrado`, marca de tiempo y autor.<br>**Validación:** Campos vacíos o descripción corta devuelven error `422 Unprocessable Entity` sin registrar datos. |
-| **RF-03** | **Consulta y Seguimiento por el Solicitante** | **CA-03, CA-05** | **Éxito:** El solicitante ve la lista de casos creados por él, mostrando ID, título, estado actual, técnico responsable (si aplica) y fecha.<br>**Validación:** Intentar consultar el detalle de un caso perteneciente a otro usuario devuelve `403 Forbidden`. |
-| **RF-04** | **Evaluación y Clasificación del Caso** | **CA-02** | **Éxito:** Coordinador o técnico autorizado revisa el caso, fija la prioridad como etiqueta (`Baja`, `Media`, `Alta`, `Crítica`; sin SLA) y pasa el estado a `En evaluación`. |
+| **RF-03** | **Consulta y Seguimiento por el Solicitante** | **CA-03, CA-05** | **Éxito:** El solicitante ve la lista de casos creados por él, mostrando ID, estado actual, técnico responsable (si aplica) y fecha.<br>**Validación:** Intentar consultar el detalle de un caso perteneciente a otro usuario devuelve `403 Forbidden`. |
+| **RF-04** | **Evaluación y Clasificación del Caso** | **CA-02** | **Éxito:** Coordinador revisa el caso, fija la prioridad como etiqueta (`Baja`, `Media`, `Alta`, `Crítica`; sin SLA) y pasa el estado a `En evaluación`. |
 | **RF-05** | **Asignación y Reasignación de Responsable** | **CA-02, CA-03** | **Éxito:** El coordinador selecciona un técnico activo y lo asigna al caso. El estado pasa a `Asignado` y se asocia el `id_tecnico`.<br>**Validación:** Si se reasigna, el evento de reasignación queda guardado en la auditoría del caso. |
 | **RF-06** | **Registro de Intervenciones Técnicas** | **CA-04** | **Éxito:** El técnico asignado registra una actuación detallando trabajo realizado y tiempo/fecha. Queda vinculada al caso con el autor.<br>**Validación:** Un técnico que NO es el responsable asignado no puede agregar intervenciones (`403 Forbidden`). |
 | **RF-07** | **Control de Transiciones de Estado** | **CA-02, CA-03** | **Éxito:** El estado del caso solo puede avanzar mediante las transiciones válidas de la máquina de estados.<br>**Validación:** Saltos de estado no permitidos (ej. de `Registrado` directo a `Cerrado`) son rechazados con código `400 Bad Request`. |
@@ -110,7 +110,7 @@ Cada requisito responde directamente a las **Condiciones de Aceptación Obligato
 
 ## 6. Supuestos Estratégicos del Proyecto (S)
 
-- **S-01 — Categorías del Servicio:** Hardware, Software, Conectividad/Redes, Cuentas/Accesos.
+- **S-01 — Categorías del Servicio:** ~~Hardware, Software, Conectividad/Redes, Cuentas/Accesos.~~ *Retirado tras la entrevista (12/11/2026): el reporte ya no pide tipo ni categoría (ver `docs/entrevista.md`, "Cambios a los requisitos").*
 - **S-02 — Niveles de Prioridad:** Baja, Media, Alta, Crítica.
 - **S-03 — Asignación Manual:** La asignación de casos se realiza manualmente por el coordinador (no requiere algoritmos automáticos de balanceo).
 - **S-04 — Ámbito de Comunicación:** Toda la interacción y seguimiento se realiza dentro de la aplicación web; no se contemplan envíos de correos electrónicos ni mensajería externa (WhatsApp/SMS), según lo autorizado en la guía.

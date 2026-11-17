@@ -2,7 +2,7 @@
 
 ## 1. Actores y Roles
 - **Solicitante** (docente / administrativo): reporta incidentes o solicitudes y consulta el estado y resultado de sus propios casos.
-- **Técnico**: evalúa, diagnostica, atiende e interviene en los casos que le son asignados; registra la solución final.
+- **Técnico**: diagnostica, atiende e interviene en los casos que le son asignados; registra la solución final.
 - **Coordinador**: evalúa y clasifica casos, asigna y reasigna técnicos responsables, cierra los casos, supervisa el flujo y consulta el resumen consolidado.
 
 ---
@@ -56,12 +56,22 @@
 ## 5. Supuestos Acordados (S)
 
 - **S-01:** Prioridades estándar: `Baja`, `Media`, `Alta`, `Crítica`.
-- **S-02:** Categorías iniciales: Hardware, Software, Conectividad/Redes, Cuentas/Accesos. *(Sin uso en el reporte tras la entrevista; pendiente de retirar o reubicar.)*
+- **S-02:** ~~Categorías iniciales: Hardware, Software, Conectividad/Redes, Cuentas/Accesos.~~ *Retirado tras la entrevista (12/11/2026): el reporte ya no pide tipo ni categoría (ver `docs/entrevista.md`, "Cambios a los requisitos").*
 - **S-03:** Asignación manual de técnicos por parte del coordinador.
 - **S-04:** Casos cerrados no se reabren.
 - **S-05:** Interacción y notificaciones 100% web dentro de la aplicación (sin dependencias de email o SMS).
 - **S-06:** Usuarios predeterminados (seeder) por rol para pruebas y evaluación.
 - **S-07:** Reportes e intervenciones estructurados en texto (sin carga de archivos binarios en el alcance base).
+
+### Supuestos del equipo no confirmados por el docente
+
+La guía PF-02 (Actividad 2) pide identificar los supuestos que el docente no confirmó. Estos cinco los adoptó el equipo; cada uno remite al requisito donde ya figura.
+
+- **EQ-01:** La evaluación y la prioridad las fija solo el Coordinador (RF-04, US-04). El docente no respondió este punto.
+- **EQ-02:** La dependencia se elige de un catálogo (RF-02).
+- **EQ-03:** La fecha del reporte es el día de la falla y no puede ser futura (RF-02).
+- **EQ-04:** Las intervenciones registran su duración (RF-06).
+- **EQ-05:** La descripción tiene un mínimo de 15 caracteres (RF-02, RN-08).
 
 ---
 
