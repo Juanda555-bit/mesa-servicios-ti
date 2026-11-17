@@ -42,7 +42,7 @@ graph TD
 
     SOL -->|Crea y Consulta| C1
     SOL -->|Consulta su estado y solución| C5
-    COO -->|Evalúa tipo y prioridad| C2
+    COO -->|Evalúa y prioriza| C2
     COO -->|Asigna o reasigna técnico| C3
     COO -->|Supervisa métricas globales| C6
     TEC -->|Atiende el caso asignado| C4
@@ -115,6 +115,10 @@ Cada requisito responde directamente a las **Condiciones de Aceptación Obligato
 - **S-03 — Asignación Manual:** La asignación de casos se realiza manualmente por el coordinador (no requiere algoritmos automáticos de balanceo).
 - **S-04 — Ámbito de Comunicación:** Toda la interacción y seguimiento se realiza dentro de la aplicación web; no se contemplan envíos de correos electrónicos ni mensajería externa (WhatsApp/SMS), según lo autorizado en la guía.
 - **S-05 — Población de Datos Inicial (Seeders):** Usuarios predeterminados por rol (solicitante, técnico, coordinador) para pruebas y sustentación.
+- **S-06 — Casos cerrados no se reabren:** Un caso `Cerrado` no se reabre ni se modifica (confirmado en la entrevista, P5; corresponde a S-04 de `docs/requisitos.md`).
+- **S-07 — Solo texto:** El reporte y las intervenciones son solo texto; no se cargan archivos ni imágenes (confirmado en la entrevista, P11; corresponde a S-07 de `docs/requisitos.md`).
+
+> **Equivalencia de numeración con `docs/requisitos.md` §5** (vigente la de `docs/requisitos.md`; aquí no se renumera): S-01 de esta sección = S-02 de requisitos (categorías, retirado); S-02 = S-01 (prioridades); S-03 = S-03 (asignación manual); S-04 = S-05 (comunicación dentro de la web); S-05 = S-06 (seeder); S-06 = S-04 (no reapertura); S-07 = S-07 (solo texto). La confirmación de cada uno está en `docs/entrevista.md`, sección "Supuestos: confirmación".
 
 ---
 
