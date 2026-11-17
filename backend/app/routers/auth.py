@@ -2,15 +2,11 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import func, select
-
-from backend.db import Usuario
-
-from .. import esquemas
+from .. import esquemas, servicios
 from ..deps import SesionBD, UsuarioActual
-from ..seguridad import crear_token, verificar_password
+from ..seguridad import crear_token
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
 
@@ -21,20 +17,9 @@ def login(sesion: SesionBD, form: Annotated[OAuth2PasswordRequestForm, Depends()
 
     Así funciona también el botón **Authorize** de esta página.
     """
-    usuario = sesion.scalar(
-        select(Usuario).where(func.lower(Usuario.correo) == form.username.strip().lower())
-    )
-    # Mismo mensaje si falla el correo o la contraseña (CA-US01.2).
-    if usuario is None or not usuario.activo or not verificar_password(
-        form.password, usuario.password_hash
-    ):
-        raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED,
-            "Correo o contraseña incorrectos",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    usuario = servicios.autenticar(sesion, form.username, form.password)
     return esquemas.Token(
-        access_token=crear_token(usuario.id, usuario.rol.value),
+        access_token=crear_token(usuario.id),
         rol=usuario.rol,
         nombre=usuario.nombre,
     )
