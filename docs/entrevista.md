@@ -59,24 +59,23 @@
 
 Según la guía PF-02 (Actividad 2, línea 165): "Los supuestos no confirmados deben identificarse". Esta tabla indica, para cada supuesto de `docs/requisitos.md` §5 (que no se modifica), en qué pregunta de esta entrevista se confirma, y separa los supuestos del equipo que el docente no confirmó (EQ-01..EQ-06). EQ-06 se añade el 16/11/2026, después de la aprobación de `docs/requisitos.md` (que cuenta cinco EQ).
 
-Referencias de código a fecha del commit `11543ca`.
+Referencias de código a fecha de la rama `feat/002-seguridad-y-capas`.
 
-| Id | Texto | Evidencia | Estado | Implementación (archivo:línea, función o clase) | Prueba (`backend/tests/test_api.py`) |
+| Id | Texto | Evidencia | Estado | Implementación (archivo:línea, función o clase) | Prueba (`backend/tests/`) |
 |---|---|---|---|---|---|
-| S-01 | Prioridades Baja/Media/Alta/Crítica | P6 (línea 19): "Solo etiqueta." | Confirmado por el docente | `backend/db/schema.sql:46-47` (tabla `caso`); `backend/app/esquemas.py:85` (`Evaluacion.prioridad`) | Ninguna específica |
+| S-01 | Prioridades Baja/Media/Alta/Crítica | P6 (línea 19): "Solo etiqueta." | Confirmado por el docente | `backend/db/schema.sql:46-47` (tabla `caso`); `backend/app/esquemas/casos.py:49-50` (`Evaluacion.prioridad`) | Ninguna específica |
 | S-02 | Categorías | P2 (línea 15): el reporte no pide categoría | Retirado | No aplica | No aplica |
-| S-03 | Asignación manual | P3 (línea 16): "Manual." | Confirmado por el docente | `backend/app/servicios.py:128-156` (`asignar_tecnico`) | Ninguna específica |
-| S-04 | Casos cerrados no se reabren | P5 (línea 18): "no se puede reabrir" | Confirmado por el docente | `backend/app/servicios.py:70-71` (`_cambiar_estado`); `backend/db/schema.sql:128-133` (`trg_caso_cerrado_inmutable`) | Ninguna específica (el caso `Cerrado` se ejerce en `test_flujo_completo`) |
+| S-03 | Asignación manual | P3 (línea 16): "Manual." | Confirmado por el docente | `backend/app/servicios/casos.py:169-194` (`asignar_tecnico`) | Ninguna específica |
+| S-04 | Casos cerrados no se reabren | P5 (línea 18): "no se puede reabrir" | Confirmado por el docente | `backend/app/servicios/casos.py:105-110` (`_validar_transicion`); `backend/db/schema.sql:128-133` (`trg_caso_cerrado_inmutable`) | Ninguna específica (el caso `Cerrado` se ejerce en `test_flujo_completo`) |
 | S-05 | Todo dentro de la web, sin correo ni mensajería | Guía, alcance (línea 140) | Confirmado por la guía | Sin envío de mensajes en `backend/` | No aplica |
 | S-06 | Usuarios del seeder por rol | P10 (línea 23) | Confirmado por el docente | `backend/seed.py:52` (`cargar`) | Ninguna específica |
-| S-07 | Solo texto | P11 (línea 24) | Confirmado por el docente | Sin carga de archivos; `backend/app/esquemas.py:10-11` (`Texto`, `TextoLargo`) | Ninguna específica |
-| EQ-01 | Solo el coordinador evalúa y fija prioridad | Sin respuesta del docente | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/routers/casos.py:59-64` (`evaluar_caso`); `backend/app/deps.py:50` (`Coordinador`) | `test_evaluar`, `test_solicitante_403_en_acciones_de_coordinador` |
-| EQ-02 | Dependencia tomada de un catálogo | P2 pide "dependencia", no un catálogo | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/servicios.py:100-102` (`registrar_caso`); `backend/app/routers/catalogos.py:14-15` (`listar_dependencias`) | `test_registro_invalido_422` (dependencia inexistente (99) e inactiva), `test_catalogos` |
-| EQ-03 | Fecha = día de la falla, no futura | P2 pide "fecha" sin más | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/esquemas.py:57,76-80` (`CasoNuevo.fecha`, `CasoNuevo._fecha_no_futura`) | `test_registro_invalido_422` (fecha futura) |
-| EQ-04 | Intervención con duración | Sin respuesta del docente | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/esquemas.py:94` (`IntervencionNueva.duracion_min`, solo `gt=0`); `backend/db/schema.sql:93` (tabla `intervencion`) | `test_flujo_completo` (`duracion_min` 0 devuelve 422) |
-| EQ-05 | Descripción de al menos 15 caracteres | P2: propuesta del equipo; el docente no la menciona | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/esquemas.py:58-60` (`CasoNuevo.descripcion`); `backend/db/schema.sql:39` (tabla `caso`) | `test_registro_invalido_422` (descripción corta) |
-| EQ-06 | Las intervenciones solo se registran con el caso en `En atención` | Sin respuesta del docente; RN-04 solo prohíbe `Cerrado` y `schema.sql` no la impone | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/servicios.py:169-173` (`registrar_intervencion`) | `test_flujo_completo` (intervención con el caso `Cerrado` devuelve 400) |
+| S-07 | Solo texto | P11 (línea 24) | Confirmado por el docente | Sin carga de archivos; `backend/app/esquemas/comun.py:7-8` (`Texto`, `TextoLargo`) | Ninguna específica |
+| EQ-01 | Solo el coordinador evalúa y fija prioridad | Sin respuesta del docente | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/routers/casos.py:33-41` (`evaluar_caso`); `backend/app/deps.py:50` (`Coordinador`) | `test_evaluar`, `test_solicitante_403_en_acciones_de_coordinador` |
+| EQ-02 | Dependencia tomada de un catálogo | P2 pide "dependencia", no un catálogo | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/servicios/casos.py:141-143` (`registrar_caso`); `backend/app/routers/catalogos.py:10-12` (`listar_dependencias`) | `test_registro_invalido_422` (dependencia inexistente (99) e inactiva), `test_catalogos` |
+| EQ-03 | Fecha = día de la falla, no futura | P2 pide "fecha" sin más | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/esquemas/casos.py:22,41-46` (`CasoNuevo.fecha`, `CasoNuevo._fecha_no_futura`) | `test_registro_invalido_422` (fecha futura) |
+| EQ-04 | Intervención con duración | Sin respuesta del docente | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/esquemas/casos.py:59` (`IntervencionNueva.duracion_min`, solo `gt=0`); `backend/db/schema.sql:93` (tabla `intervencion`) | `test_flujo_completo` (`duracion_min` 0 devuelve 422) |
+| EQ-05 | Descripción de al menos 15 caracteres | P2: propuesta del equipo; el docente no la menciona | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/esquemas/casos.py:23-25` (`CasoNuevo.descripcion`); `backend/db/schema.sql:39` (tabla `caso`) | `test_registro_invalido_422` (descripción corta) |
+| EQ-06 | Las intervenciones solo se registran con el caso en `En atención` | Sin respuesta del docente; RN-04 solo prohíbe `Cerrado` y `schema.sql` no la impone | Supuesto del equipo no confirmado por el docente, implementado | `backend/app/servicios/casos.py:202-208` (`registrar_intervencion`) | `test_intervencion_fuera_de_atencion_400` (casos `Asignado` y `Resuelto`) |
 
 Notas:
-- Cobertura pendiente de EQ-06: ninguna prueba intenta intervenir con el caso en `Asignado` o `Resuelto`; solo se ejerce el caso `Cerrado` (que también cubre RN-04). Añadir esa prueba es un cambio de código, pendiente.
 - Las referencias "S-0x" del resto de este documento remiten a `docs/requisitos.md` §5.

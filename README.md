@@ -77,12 +77,18 @@ python -m backend.seed          # crea la base y carga datos de prueba
 python -m uvicorn backend.app.main:app --reload
 ```
 
-**Variables de entorno.** Copiar `.env.example` a `.env` (`cp .env.example .env`; en Windows `copy .env.example .env`) y ajustar. El archivo `.env` no se versiona y no debe contener secretos compartidos. Si no existe, la API arranca con una clave temporal y lo avisa.
+**Variables de entorno.** Copiar `.env.example` a `.env` (`cp .env.example .env`; en Windows `copy .env.example .env`) y ajustar. El archivo `.env` no se versiona y no debe contener secretos compartidos. **`JWT_SECRET` es obligatorio:** sin un secreto válido no arrancan ni la API ni el seeder (terminan con un mensaje en español), y el valor de ejemplo de `.env.example` se rechaza. Para generar uno propio de 64 caracteres:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Quien tenga un `.env` de versiones anteriores debe renombrar sus variables de secreto y de duración del token a `JWT_SECRET` y `JWT_EXPIRA_MIN`; las anteriores ya no se leen.
 
 | Variable | Uso |
 |---|---|
-| `SECRET_KEY` | Clave para firmar los tokens; generar una propia. |
-| `TOKEN_MINUTOS` | Minutos de validez del token (480 = 8 horas). |
+| `JWT_SECRET` | Clave para firmar los tokens. Obligatoria, mínimo 32 caracteres; sin ella (o con el valor de ejemplo) no arrancan la API ni el seeder. |
+| `JWT_EXPIRA_MIN` | Minutos de validez del token: entero mayor que 0 (480 = 8 horas, valor por defecto si se omite). |
 | `CORS_ORIGINS` | Orígenes permitidos para el frontend, separados por coma. |
 | `DATABASE_URL` | Opcional (comentada en `.env.example`): URL SQLite; si se omite se usa `backend/mesa_ti.db`. |
 
@@ -91,7 +97,7 @@ python -m uvicorn backend.app.main:app --reload
 - API: http://localhost:8000 · Documentación interactiva: http://localhost:8000/docs
 - En `/docs`, botón **Authorize**: correo en *username* y la contraseña.
 
-Usuarios de prueba del seeder (contraseña de demostración `Mesa2026*`, datos ficticios):
+Usuarios de prueba del seeder (contraseña de demostración `Mesa2026*`, datos ficticios). **Aviso:** esa contraseña es ficticia y común a todos los usuarios del seeder; no debe reutilizarse ni usarse fuera del entorno local, y menos en un entorno real.
 
 | Rol | Correo |
 |---|---|
@@ -106,7 +112,7 @@ Documentación interactiva (Swagger): http://localhost:8000/docs
 | Método | Ruta | Descripción | Requisito relacionado |
 |---|---|---|---|
 | GET | `/salud` | Estado del servicio | – |
-| POST | `/auth/login` | Devuelve token con el rol | RF-01 |
+| POST | `/auth/login` | Devuelve el token y, junto a él, el rol y el nombre | RF-01 |
 | GET | `/auth/me` | Usuario autenticado | RF-01 |
 | GET | `/dependencias` | Catálogo para el formulario | RF-02 |
 | POST | `/casos` | Registrar caso | RF-02, CA-01 |
@@ -136,7 +142,7 @@ Respuesta `200`:
 {"access_token": "<token>", "token_type": "bearer", "rol": "solicitante", "nombre": "Sara Solicitante"}
 ```
 
-Con correo o contraseña incorrectos responde `401` con `{"detail": "Correo o contraseña incorrectos"}`.
+El token es un JWT firmado con `JWT_SECRET` que contiene solo `sub` (id del usuario) y `exp`; **no lleva el rol**: este va en la respuesta del login y el backend lo consulta en la base en cada petición. Con correo o contraseña incorrectos responde `401` con `{"detalle": "Correo o contraseña incorrectos"}`.
 
 **Ejemplo: registrar un caso** (rol solicitante):
 
@@ -155,9 +161,13 @@ Authorization: Bearer <token>
 
 Respuesta `201`: el caso con `estado: "Registrado"`, `prioridad: null` y `tecnico: null`.
 
-**Validaciones.** Descripción de al menos 15 caracteres, placa y nombre no vacíos, teléfono de 7 a 20 caracteres (dígitos, +, ( ), - y espacios), fecha no futura y dependencia existente y activa; si algo falla responde `422` y no se crea el caso.
+**Validaciones.** Descripción de al menos 15 caracteres, placa y nombre no vacíos, teléfono no vacío de hasta 20 caracteres (sin patrón de formato), fecha no futura y dependencia existente y activa; en las intervenciones, descripción no vacía y duración mayor que 0 (sin máximo). Si algo falla responde `422` y no se crea el caso.
 
-**Errores:** `400` transición de estado inválida, `401` sin token o credenciales inválidas, `403` rol o caso no autorizado, `404` caso inexistente, `409` regla de integridad de la base, `422` datos inválidos, `500` error interno genérico sin trazas. Las respuestas llevan `detail` y nunca trazas internas.
+**Errores.** Todas las respuestas de error usan el cuerpo `{"detalle": "<mensaje en español>"}`, sin trazas internas. Códigos: `400` transición de estado inválida o regla de integridad rechazada por la base (con mensaje genérico, sin detalles de SQL), `401` sin token, token inválido o credenciales incorrectas, `403` rol o caso no autorizado, `404` caso o ruta inexistente, `405` método no permitido, `422` datos inválidos y `500` error interno genérico. En `422` el cuerpo añade `campos`, una lista de `{"campo": ..., "motivo": ...}` con todos los campos inválidos:
+
+```json
+{"detalle": "Datos de entrada no válidos", "campos": [{"campo": "descripcion", "motivo": "..."}]}
+```
 
 ## 7. Pruebas de API e integración y evidencias de funcionamiento
 
@@ -167,28 +177,52 @@ Pruebas automáticas, desde la raíz y con el entorno activado:
 python -m pytest backend -v
 ```
 
-Resultado de la última ejecución (16/11/2026, `python -m pytest backend -q`): **30 pasan, 0 fallan**. Esquema de la base: `python -I backend/db/probar_esquema.py`.
+Resultado de la última ejecución (17/11/2026, rama `feat/002-seguridad-y-capas`, `python -m pytest backend -v`): **76 pasan, 0 fallan** (57 en `test_api.py`, 3 en `test_capas.py`, 11 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
 
 | Prueba | Tipo | Requisito | Resultado |
 |---|---|---|---|
 | `test_salud_y_openapi_exponen_los_16_pares` | endpoint | RNF-05 | Pasa |
 | `test_login_correcto_devuelve_token_y_rol` | endpoint | RF-01 | Pasa |
+| `test_token_invalido_401` (5 casos: vencido, sin `exp`, sin `sub`, `alg` none, otra firma) | regla | RF-01, RNF-02 | Pasa (5/5) |
+| `test_token_solo_sub_y_exp` | regla | RF-01, RNF-02 | Pasa |
+| `test_login_devuelve_rol_correcto` | endpoint | RF-01 | Pasa |
+| `test_claim_rol_manipulado_403` | regla | RF-01, RN-07 | Pasa |
 | `test_login_incorrecto_mismo_mensaje` | endpoint | RF-01 | Pasa |
+| `test_login_verifica_hash_siempre` | regla | RF-01, RNF-02 | Pasa |
 | `test_rutas_protegidas` | regla | RF-01, RN-07 | Pasa |
 | `test_password_no_en_texto_plano` | regla | RF-01, RNF-02 | Pasa |
 | `test_registrar_caso` | endpoint | RF-02, CA-01 | Pasa |
-| `test_registro_invalido_422` (6 casos) | regla | RF-02, RN-08 | Pasa (6/6) |
+| `test_registro_invalido_422` (8 casos) | regla | RF-02, RN-08 | Pasa (8/8) |
+| `test_telefono_sin_patron` | regla | RF-02, RN-08 | Pasa |
 | `test_solicitante_solo_ve_sus_casos` | regla | RF-03, RN-06 | Pasa |
 | `test_tecnico_solo_ve_asignados` | regla | RF-03, RN-06 | Pasa |
 | `test_evaluar` | endpoint | RF-04, RN-09 | Pasa |
 | `test_asignar_y_reasignar` | regla | RF-05, RN-02, RN-10 | Pasa |
 | `test_flujo_completo` | integración | RF-02 a RF-09, CA-01 a CA-05 | Pasa |
+| `test_duracion_sin_maximo` | regla | RF-06 | Pasa |
+| `test_intervencion_fuera_de_atencion_400` (2 casos: `Asignado`, `Resuelto`) | regla | RF-06, RN-01 | Pasa (2/2) |
+| `test_resolver_cerrar_invalidos_sin_efectos_http` | regla | RF-08, RN-01, RN-03, RN-04 | Pasa |
+| `test_resolver_cerrar_invalidos_sin_efectos_servicio` | regla | RF-08, RN-01, RN-03, RN-04 | Pasa |
 | `test_saltos_invalidos` | regla | RN-01, RN-03, RN-04 | Pasa |
 | `test_resumen_coordinador` | endpoint | RF-10, CA-06 | Pasa |
 | `test_catalogos` | endpoint | RF-02, RF-05 | Pasa |
 | `test_solicitante_403_en_acciones_de_coordinador` | regla | RN-07 | Pasa |
 | `test_404_con_rol_permitido_sobre_caso_inexistente` | endpoint | RN-06 | Pasa |
 | `test_intervencion_no_editable_ni_borrable` (3 casos) | regla | RF-06, RN-05 | Pasa (3/3) |
+| `test_servicio_lanza_excepciones_de_dominio` | regla | RNF-04 | Pasa |
+| `test_error_de_dominio_usa_detalle` | regla | RNF-04 | Pasa |
+| `test_errores_usan_detalle` (11 casos: 400, 401, 403, 404, 405, 422, 500) | regla | RNF-04 | Pasa (11/11) |
+| `test_422_lista_todos_los_campos` | regla | RNF-04, RN-08 | Pasa |
+| `test_integridad_400_sin_detalles_internos` | regla | RNF-04 | Pasa |
+| `test_servicios_sin_fastapi` | estructura | RNF-04 | Pasa |
+| `test_routers_sin_reglas` | estructura | RNF-04 | Pasa |
+| `test_listar_casos_servicio_filtra_por_rol` | regla | RF-03, RN-06 | Pasa |
+| `test_jwt_secret_invalido_no_carga` (4 casos) | regla | RNF-02 | Pasa (4/4) |
+| `test_jwt_secret_de_32_carga` | regla | RNF-02 | Pasa |
+| `test_jwt_expira_min_invalido` (3 casos) | regla | RNF-02 | Pasa (3/3) |
+| `test_jwt_expira_min_por_defecto_480` | regla | RNF-02 | Pasa |
+| `test_env_example_sin_valores_reales` | regla | RNF-02 | Pasa |
+| `test_pruebas_aisladas_del_env_local` | regla | RNF-02 | Pasa |
 | `test_inicializar_base_es_idempotente` | integración | RNF-03 | Pasa |
 | `test_modelos_coinciden_con_el_esquema` | integración | RNF-03 | Pasa |
 | `test_claves_foraneas_activas_en_cada_conexion` | integración | RNF-03 | Pasa |
