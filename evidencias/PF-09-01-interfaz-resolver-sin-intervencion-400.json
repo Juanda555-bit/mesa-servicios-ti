@@ -1,0 +1,13 @@
+{
+  "canal": "interfaz (Red de DevTools)",
+  "metodo": "POST",
+  "ruta": "/casos/3/resolver",
+  "codigo": 400,
+  "cuerpo_enviado": {
+    "solucion": "Se restablece el enlace de red del laboratorio."
+  },
+  "respuesta": {
+    "detalle": "Registre al menos una intervención antes de resolver el caso"
+  },
+  "token": "<TOKEN-OMITIDO>"
+}

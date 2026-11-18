@@ -1,0 +1,9 @@
+{
+  "metodo": "GET",
+  "ruta": "/casos/9999",
+  "token": "<TOKEN-OMITIDO>",
+  "codigo": 404,
+  "respuesta": {
+    "detalle": "El caso no existe"
+  }
+}

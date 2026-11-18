@@ -3,7 +3,7 @@
 Proyecto Final 02 (PF-02) · Aplicaciones y Servicios Web · Tecnología en Desarrollo de Software.
 Aplicación web para registrar, atender, dar seguimiento y cerrar casos de soporte tecnológico de una institución educativa.
 
-> **Estado del proyecto (16/11/2026):** requisitos aprobados por el docente (12/11/2026); diseño aprobado por el equipo e implementado en la API (16/11/2026), en `docs/diseno.md`. Capa de base de datos (`backend/db/`) y API REST (16 endpoints con autenticación por rol, seeder de datos ficticios y pruebas) implementadas y probadas. Aún no hay interfaz web.
+> **Estado del proyecto (18/11/2026):** requisitos aprobados por el docente (12/11/2026); diseño aprobado por el equipo e implementado. Capa de base de datos (`backend/db/`), API REST (16 endpoints con autenticación por rol, seguridad endurecida, seeder de datos ficticios y 85 pruebas pytest) e interfaz web React + Vite (spec 003) con el flujo completo por rol, integradas en `main` (PR #2 a #5). Pruebas funcionales PF-01 a PF-11 ejecutadas el 18/11/2026 sobre `main` `58c80e0` (todas aprobadas) más la PF-12 de la spec 003, con evidencias en `evidencias/`; matriz de trazabilidad completa en `docs/trazabilidad.md`. La documentación y las evidencias de la spec 004 viajan en el PR #6, pendiente de revisión y de merge.
 
 ## 1. Información general
 
@@ -14,8 +14,8 @@ Aplicación web para registrar, atender, dar seguimiento y cerrar casos de sopor
 | Asignatura | Aplicaciones y Servicios Web |
 | Docente (cliente) | Juan Carlos Morales Guerra |
 | Integrantes | Juan David Arias Ospina · Simón Herrera |
-| Contribución de cada integrante | Resumen por áreas según `git shortlog -sne origin/fix/feat-api`, a fecha del commit `11543ca` (validado por ambos integrantes el 17/11/2026). **Juan David Arias** (11 commits): estructura inicial del repositorio, borrador de requisitos y plantilla de la entrevista; backend de la API (autenticación, esquemas y reglas, endpoints, seeder, pruebas de integración) y documentación de instalación y servicios en el README (p. ej. `2044e45`, `62903fd`, `50df7aa`). **Simón Herrera** (13 commits): especificación y registro de la entrevista, requisitos tras la entrevista e historias de usuario, README inicial, diseño, esquema SQL y modelos ORM con sus pruebas, limpieza e integración de la API (p. ej. `8dffa61`, `19b8d6d`, `e606cb2`, `11543ca`). |
-| Fecha de entrega | Pendiente |
+| Contribución de cada integrante | Resumen por áreas según `git shortlog -sne main`, a fecha del 18/11/2026 y del commit `58c80e0` (39 commits; detalle en el apartado 8). **Juan David Arias** (19 commits, con autor `Juanda555-bit` en tres identidades): estructura inicial del repositorio y borrador de requisitos y de la plantilla de la entrevista (`db2ee87`, `2044e45`); backend de la API: autenticación, esquemas y reglas, endpoints, seeder y pruebas de integración (`62903fd`, `355c366`, `a4f376e`, `22b7291`, `50df7aa`); documentación de instalación y servicios en el README (`e31f000`); CORS y concordancia de mensajes 422 (`59efcdc`); interfaz web React + Vite de la spec 003 (`052b3b5`, `7fe357c`, `ea959f6`) y su documentación (`d893fed`). **Simón Herrera** (20 commits, con autor `Simonh003 [Herrera]` y `Simon Herrera`): especificación y registro de la entrevista, requisitos tras la entrevista e historias de usuario (`abf5e0b`, `e483b0a`, `8dffa61`); README inicial (`2939c27`); diseño, esquema SQL y modelos ORM con sus pruebas (`e5d1bea`, `19b8d6d`, `e606cb2`, `dbe9796`, `8ce53f5`); limpieza e integración de la API (`1e8b6d3`, `11543ca`); seguridad y capas de la spec 002 con sus pruebas funcionales de API (`16f6c4d`, `1c025d5`); trazabilidad de los PR y fusión de los PR #4 y #5 (`6acc782`, `25c67bc`, `bfb0810`, `58c80e0`). La documentación y las evidencias de la spec 004 (pruebas PF-01 a PF-11, README y trazabilidad) las redacta y sube Simón Herrera; no figuran en este recuento porque aún no están en `main` (PR #6, apartado 8). |
+| Fecha de entrega | 18/11/2026 |
 | Repositorio | https://github.com/Juanda555-bit/mesa-servicios-ti |
 
 ## 2. Descripción del sistema
@@ -118,6 +118,13 @@ npm run dev
 - `frontend/.env.example` define `VITE_API_URL=http://localhost:8000`, la dirección de la API; el navegador la llama directamente, sin proxy de Vite. Si se cambia el origen del frontend, debe coincidir con `CORS_ORIGINS` del backend.
 - `npm run build` genera el empaquetado en `frontend/dist` (no se versiona).
 
+**Requisitos del repositorio.** Elementos que acompañan el código (sin credenciales reales; `.env` no se versiona):
+
+- [`README.md`](README.md) (este documento) y [`.gitignore`](.gitignore)
+- [`.env.example`](.env.example) (backend) y [`frontend/.env.example`](frontend/.env.example) (frontend)
+- [`docs/requisitos.md`](docs/requisitos.md), [`docs/diseno.md`](docs/diseno.md), [`docs/trazabilidad.md`](docs/trazabilidad.md) y [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md)
+- [`evidencias/`](evidencias/): capturas y respuestas de las pruebas
+
 ## 6. Servicios web implementados
 
 Documentación interactiva (Swagger): http://localhost:8000/docs
@@ -190,7 +197,7 @@ Pruebas automáticas, desde la raíz y con el entorno activado:
 python -m pytest backend -v
 ```
 
-Resultado de la última ejecución (18/11/2026, rama `local/003-trabajo`, `python -m pytest backend -v`): **85 pasan, 0 fallan** (59 en `test_api.py`, 3 en `test_capas.py`, 18 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
+Resultado de la última ejecución (18/11/2026, `main` en el commit `58c80e0`, `python -m pytest backend -v`): **85 pasan, 0 fallan** (59 en `test_api.py`, 3 en `test_capas.py`, 18 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
 
 | Prueba | Tipo | Requisito | Resultado |
 |---|---|---|---|
@@ -242,36 +249,99 @@ Resultado de la última ejecución (18/11/2026, rama `local/003-trabajo`, `pytho
 | `test_flujo_completo_con_el_orm` | integración | RF-02 a RF-09 | Pasa |
 | `test_protecciones_de_la_base_a_traves_del_orm` | integración | RN-02, RN-04, RN-05 | Pasa |
 
-Pruebas funcionales PF: Pendiente (se documentarán en un archivo enlazado desde este README, con evidencias en `evidencias/`).
+### Pruebas funcionales (PF)
+
+Las 22 pruebas funcionales (PF-01 a PF-12 por la interfaz y la API; PF-API-01 a PF-API-10 contra la API) están documentadas con todos sus campos (requisito, precondiciones, pasos, entrada, método y ruta con código HTTP, resultado esperado y obtenido, estado y evidencia) en [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md). Las capturas y salidas están en [`evidencias/`](evidencias/) y la relación con los criterios de aceptación en la matriz de trazabilidad: [`docs/trazabilidad.md`](docs/trazabilidad.md). Las PF-01 a PF-11 se ejecutaron seguidas el 18/11/2026 sobre una sola base sembrada y sobre el código de `main` en el commit `58c80e0`; las capturas de la pestaña Red solo muestran la respuesta, sin token ni cabeceras.
+
+| Prueba | Descripción | Requisito | Resultado |
+|---|---|---|---|
+| PF-01 | Registro válido de caso | CA-01 · RF-02 · RN-08 | Aprobada |
+| PF-02 | Registro con datos inválidos (422) | CA-01 · RN-08 | Aprobada |
+| PF-03 | Consulta de caso existente | CA-03 · RF-03 | Aprobada |
+| PF-04 | Consulta de caso inexistente (404) | RF-03 · RNF-04 | Aprobada |
+| PF-05 | Gestión por personal autorizado (evaluar y asignar) | CA-02 · RN-07 · RN-09 · RN-10 | Aprobada |
+| PF-06 | Gestión por actor no autorizado (403) | CA-02 · RN-02 · RN-06 · RN-07 | Aprobada |
+| PF-07 | Consulta de estado y responsable tras reasignar | CA-03 · RN-02 · RN-10 | Aprobada |
+| PF-08 | Historial de intervenciones | CA-04 · RN-05 | Aprobada |
+| PF-09 | Cierre de caso y consulta de resultado (400 en transiciones inválidas) | CA-05 · RN-01 · RN-03 · RN-04 | Aprobada |
+| PF-10 | Consulta consolidada de coordinación (403 a otros roles) | CA-06 · RN-07 | Aprobada |
+| PF-11 | Persistencia e integridad de relaciones tras reiniciar la API | CA-01 a CA-06 · RNF-03 | Aprobada |
+| PF-12 | Integración interfaz–API–base de datos: flujo completo | CA-01 a CA-06 | Aprobada |
+| PF-API-01 | Login correcto: token y rol | CA-03 · RF-01 | Aprobada |
+| PF-API-02 | Login fallido indistinguible | CA-03 · RNF-04 | Aprobada |
+| PF-API-03 | Token manipulado | CA-03 · RN-06 | Aprobada |
+| PF-API-04 | Token vencido | CA-03 · RN-06 | Aprobada |
+| PF-API-05 | Sin token y rol sin permiso | CA-02 · CA-06 · RN-07 | Aprobada |
+| PF-API-06 | Registro inválido: 422 con `detalle` y `campos` | CA-01 · RN-08 | Aprobada |
+| PF-API-07 | Teléfono de 20 caracteres aceptado | CA-01 · RF-02 · RN-08 | Aprobada |
+| PF-API-08 | Caso inexistente (404) y caso ajeno (403) | CA-03 · RN-06 | Aprobada |
+| PF-API-09 | Recorrido completo de un caso por la API | CA-01 a CA-06 · RN-01 a RN-05 | Aprobada |
+| PF-API-10 | Arranque rechazado con `JWT_SECRET` corto | RF-1 (spec 002) | Aprobada |
+
+**Cómo reproducirlas.**
+
+1. Preparar el entorno y el `.env` con un `JWT_SECRET` propio (apartado 5).
+2. Arrancar la API: `python -m uvicorn backend.app.main:app` (documentación Swagger en http://localhost:8000/docs).
+3. Sembrar la base una sola vez: `python -m backend.seed` (datos ficticios; para repetir desde cero, borrar `backend/mesa_ti.db` y sembrar de nuevo).
+4. Arrancar el frontend: `cd frontend` y `npm run dev` (http://localhost:5173).
+5. Iniciar sesión con los usuarios del seeder (apartado 5; contraseña de demostración `Mesa2026*`): `solicitante1` para PF-01 a PF-04, `coordinador` y `tecnico1` o `tecnico2` para PF-05 a PF-12.
+6. Seguir los pasos de cada prueba en [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md) en orden numérico, sin volver a sembrar entre ellas: cada PF parte del estado que dejó la anterior. Los casos de error que la interfaz no permite provocar (por ejemplo `404`, `403` y el segundo cierre) se hacen por la API, con Swagger en `/docs` (botón **Authorize**) o con peticiones HTTP.
+
+Verificación automática de esta versión (`main`, commit `58c80e0`): `python -m pytest backend -q` da 85 pasan y 0 fallan, y `python -I backend/db/probar_esquema.py` da 45 correctas y 0 fallidas.
 
 Matriz de trazabilidad: [`docs/trazabilidad.md`](docs/trazabilidad.md).
 
 ## 8. Control de versiones
 
 - Repositorio: https://github.com/Juanda555-bit/mesa-servicios-ti
-- Ramas remotas: `main`, `docs/requisitos-y-entrevista`, `docs/diseno`, `feat/base-de-datos`, `feat/000-limpieza`, `feat/api` y `fix/feat-api` (esta última integra la API para ejecutarla desde la raíz; último commit `11543ca`).
-- Pull requests: [#2](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/2) (requisitos, diseño y capa de datos) y [#3](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/3) (API REST e integración).
-- Commits descriptivos (`docs:`, `feat:`, `fix:`, `chore:`, `test:`); cada pull request documentará propósito, cambios, pruebas y requisitos asociados.
-- Resumen de aportes por áreas, a fecha del commit `11543ca` y según `git shortlog -sne origin/fix/feat-api` (validado por ambos integrantes el 17/11/2026): **Juan David Arias** (11 commits): estructura inicial del repositorio, borrador de requisitos y plantilla de la entrevista (`2044e45`); backend de la API: autenticación, esquemas y reglas, endpoints, seeder (`62903fd`) y pruebas de integración (`50df7aa`); documentación de instalación y servicios en el README. **Simón Herrera** (13 commits): especificación y registro de la entrevista, requisitos tras la entrevista e historias de usuario (`8dffa61`), README inicial, diseño, esquema SQL (`19b8d6d`) y modelos ORM con sus pruebas (`e606cb2`), limpieza e integración de la API (`11543ca`).
+- Ramas: `main`; ramas remotas `docs/requisitos-y-entrevista`, `docs/diseno`, `feat/base-de-datos`, `feat/002-seguridad-y-capas` y `feat/003-frontend`; ramas de los PR #2 y #3 (`feat/000-limpieza`, `fix/feat-api`, ya fusionadas) y rama de la spec 004 `feat/004-pruebas-y-entrega` (PR #6).
+- Pull requests (todos con merge commit):
+  - [#2](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/2): requisitos, diseño y capa de datos, con la limpieza del repositorio. Fusionado el 17/11/2026 (`741e234`).
+  - [#3](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/3): API REST integrada y ejecutable desde la raíz. Fusionado el 17/11/2026 (`14901ff`).
+  - [#4](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/4): seguridad y capas de la API (spec 002). Fusionado el 18/11/2026 (`bfb0810`).
+  - [#5](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/5): interfaz web React + Vite con el flujo completo por rol (spec 003). Fusionado el 18/11/2026 (`58c80e0`).
+  - [#6](https://github.com/Juanda555-bit/mesa-servicios-ti/pull/6): pruebas funcionales PF-01 a PF-11, evidencias, README y trazabilidad finales (spec 004, rama `feat/004-pruebas-y-entrega`). Lo abre Simón Herrera; queda pendiente la revisión de Juan David Arias y del merge.
+- Commits descriptivos (`docs:`, `feat:`, `fix:`, `chore:`, `test:`); cada pull request documenta propósito, cambios, pruebas y requisitos asociados.
+- Revisión entre integrantes, tal como ocurrió: Juan David Arias revisó el PR #2 (revisión con comentarios), aprobó el PR #3 y comentó el PR #4; el PR #5 reúne commits de ambos integrantes. En el PR #4 la aprobación fue un comentario y no incluyó un commit propio del revisor, aunque el flujo acordado lo pedía; se deja constancia de lo ocurrido sin presentarlo como cumplido. En el PR #6 todos los commits son de Simón Herrera y Juan David Arias lo revisa en GitHub sin commit propio (decisión D-9 de la spec 004).
+- Resumen de aportes, según `git shortlog -sne main` a fecha del 18/11/2026 (commit `58c80e0`, 39 commits), tal cual lo cuenta Git por identidad de autor:
+
+| Identidad de autor | Commits |
+|---|---|
+| Simonh003 [Herrera] | 18 |
+| Juanda555-bit [Arias] | 8 |
+| Juanda555-bit (sin corchetes, correo de GitHub) | 7 |
+| Juanda555-bit (sin corchetes, otro correo) | 4 |
+| Simon Herrera (correo de GitHub) | 2 |
+
+  Sumando las identidades de cada persona: **Simón Herrera 20 commits** y **Juan David Arias 19 commits**. Áreas de cada uno: Juan David Arias, estructura inicial, backend de la API (autenticación, esquemas, endpoints, seeder y pruebas de integración, `62903fd`, `355c366`, `a4f376e`, `22b7291`, `50df7aa`), documentación de instalación y la interfaz web de la spec 003 (`052b3b5`, `7fe357c`, `ea959f6`, `d893fed`); Simón Herrera, entrevista y requisitos (`abf5e0b`, `e483b0a`, `8dffa61`), diseño, esquema SQL y modelos ORM (`e5d1bea`, `19b8d6d`, `e606cb2`), integración de la API (`11543ca`), spec 002 (`16f6c4d`, `1c025d5`), trazabilidad y fusión de los PR #4 y #5.
+- Los commits de la spec 004 (PR #6) todavía no están en `main`, por eso no figuran en el recuento anterior: los commits de esa rama los hace Simón Herrera y Juan David Arias participa solo con la revisión del PR #6; no se le atribuye trabajo de la spec 004.
+
 
 ## 9. Conclusiones y limitaciones
 
-Estado a 16/11/2026.
+Estado a 18/11/2026.
 
-**Cumplimiento de las condiciones.** Según [`docs/trazabilidad.md`](docs/trazabilidad.md), CA-01 a CA-06 están implementadas en la API y probadas con pytest; sus pruebas funcionales y de interfaz y la columna "Pull request" siguen por completar.
+**Cumplimiento de las condiciones.** Según [`docs/trazabilidad.md`](docs/trazabilidad.md), CA-01 a CA-06 están implementadas en la API y en la interfaz web, integradas en `main` (PR #2 a #5), probadas con pytest (85 pasan, 0 fallan) y demostradas con pruebas funcionales por la interfaz y la API, todas aprobadas el 18/11/2026 sobre `main` `58c80e0`. PF-11 (persistencia tras reiniciar la API) y PF-12 (flujo completo de un caso) cubren las seis condiciones.
 
-| Condición | Estado |
-|---|---|
-| CA-01 | Implementada en la API y probada con pytest |
-| CA-02 | Implementada en la API y probada con pytest |
-| CA-03 | Implementada en la API y probada con pytest |
-| CA-04 | Implementada en la API y probada con pytest |
-| CA-05 | Implementada en la API y probada con pytest |
-| CA-06 | Implementada en la API y probada con pytest |
+| Condición | Estado | Pruebas funcionales |
+|---|---|---|
+| CA-01 | Implementada (API e interfaz) y probada | PF-01, PF-02, PF-11, PF-12 |
+| CA-02 | Implementada (API e interfaz) y probada | PF-05, PF-06, PF-11, PF-12 |
+| CA-03 | Implementada (API e interfaz) y probada | PF-03, PF-04, PF-07, PF-11, PF-12 |
+| CA-04 | Implementada (API e interfaz) y probada | PF-08, PF-11, PF-12 |
+| CA-05 | Implementada (API e interfaz) y probada | PF-09, PF-11, PF-12 |
+| CA-06 | Implementada (API e interfaz) y probada | PF-10, PF-11, PF-12 |
 
-**Dificultad resuelta.** La API de `feat/api` no se podía ejecutar desde la raíz del repositorio (fallaban las importaciones y faltaba una dependencia del login por formulario). Se corrigieron las importaciones y se fijó la dependencia; ahora las pruebas, el seeder y el servidor se ejecutan desde la raíz.
+**Dificultades resueltas.**
+- La API de `feat/api` no se podía ejecutar desde la raíz del repositorio (fallaban las importaciones y faltaba una dependencia del login por formulario). Se corrigieron las importaciones y se fijó la dependencia (commit `11543ca`, PR #3).
+- La API de la primera versión no cumplía el endurecimiento de seguridad acordado (secreto JWT obligatorio, token solo con `sub` y `exp`, capas separadas, errores unificados en `detalle`). Se resolvió en la spec 002 (commit `16f6c4d`, PR #4).
+- Antes de conectar la interfaz se quitaron las credenciales y el comodín de CORS y se corrigió la concordancia de los mensajes 422 de la API (commit `59efcdc`, spec 003, PR #5).
+- La PF-12 se ejecutó antes de que el código estuviera en `main`; para que las pruebas de la spec 004 fueran verificables, las PF-01 a PF-11 se ejecutaron directamente sobre `main` `58c80e0` (spec 004, PR #6).
 
-**Limitaciones y pendientes.**
-- No hay interfaz web todavía.
-- Las pruebas funcionales y sus evidencias están pendientes.
-- Falta el endurecimiento de la seguridad de la API y alinear algunas validaciones y respuestas de error con lo acordado en el diseño.
+**Limitaciones y pendientes (dentro del alcance aprobado).**
+- No hay pruebas automáticas del frontend: la interfaz se verifica con las pruebas funcionales y con Chrome DevTools.
+- El seeder no incluye casos en estado `Resuelto`; por eso la PF-12 recorre un caso nuevo de principio a fin.
+- En modo desarrollo, la pestaña Red muestra peticiones duplicadas o canceladas (`net::ERR_ABORTED`): es la doble ejecución de efectos de React (StrictMode) y no ocurre en la compilación de producción.
+- La fecha de la intervención (RF-06) es la fecha y hora automática del servidor (`creado_en`): interpretación del equipo C-3 de la spec 003, documentada en [`docs/entrevista.md`](docs/entrevista.md#supuestos-confirmación); no se modificó `docs/requisitos.md`.
+- Los comentarios opcionales del auditor de seguridad quedan como mejoras futuras; la contraseña de demostración del seeder es ficticia y común, solo para uso local.
+- El PR #6 aún no está fusionado: el apartado 8 recoge lo ocurrido hasta el 18/11/2026.

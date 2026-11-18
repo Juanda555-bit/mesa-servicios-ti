@@ -1,0 +1,19 @@
+{
+  "metodo": "GET",
+  "ruta": "/casos",
+  "token": "<TOKEN-OMITIDO>",
+  "total_antes": 4,
+  "ids_antes": [
+    6,
+    5,
+    3,
+    1
+  ],
+  "total_despues": 4,
+  "ids_despues": [
+    6,
+    5,
+    3,
+    1
+  ]
+}
