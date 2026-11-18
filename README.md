@@ -118,6 +118,13 @@ npm run dev
 - `frontend/.env.example` define `VITE_API_URL=http://localhost:8000`, la dirección de la API; el navegador la llama directamente, sin proxy de Vite. Si se cambia el origen del frontend, debe coincidir con `CORS_ORIGINS` del backend.
 - `npm run build` genera el empaquetado en `frontend/dist` (no se versiona).
 
+**Requisitos del repositorio.** Elementos que acompañan el código (sin credenciales reales; `.env` no se versiona):
+
+- [`README.md`](README.md) (este documento) y [`.gitignore`](.gitignore)
+- [`.env.example`](.env.example) (backend) y [`frontend/.env.example`](frontend/.env.example) (frontend)
+- [`docs/requisitos.md`](docs/requisitos.md), [`docs/diseno.md`](docs/diseno.md), [`docs/trazabilidad.md`](docs/trazabilidad.md) y [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md)
+- [`evidencias/`](evidencias/): capturas y respuestas de las pruebas
+
 ## 6. Servicios web implementados
 
 Documentación interactiva (Swagger): http://localhost:8000/docs
@@ -307,7 +314,7 @@ Matriz de trazabilidad: [`docs/trazabilidad.md`](docs/trazabilidad.md).
 | Simon Herrera (correo de GitHub) | 2 |
 
   Sumando las identidades de cada persona: **Simón Herrera 20 commits** y **Juan David Arias 19 commits**. Áreas de cada uno: Juan David Arias, estructura inicial, backend de la API (autenticación, esquemas, endpoints, seeder y pruebas de integración, `62903fd`, `355c366`, `a4f376e`, `22b7291`, `50df7aa`), documentación de instalación y la interfaz web de la spec 003 (`052b3b5`, `7fe357c`, `ea959f6`, `d893fed`); Simón Herrera, entrevista y requisitos (`abf5e0b`, `e483b0a`, `8dffa61`), diseño, esquema SQL y modelos ORM (`e5d1bea`, `19b8d6d`, `e606cb2`), integración de la API (`11543ca`), spec 002 (`16f6c4d`, `1c025d5`), trazabilidad y fusión de los PR #4 y #5.
-- Los commits de la spec 004 (PR #6) todavía no están en `main`, por eso no figuran en el recuento anterior: los dos commits de esa rama los hace Simón Herrera y Juan David Arias participa solo con la revisión del PR #6; no se le atribuye trabajo de la spec 004.
+- Los commits de la spec 004 (PR #6) todavía no están en `main`, por eso no figuran en el recuento anterior: los commits de esa rama los hace Simón Herrera y Juan David Arias participa solo con la revisión del PR #6; no se le atribuye trabajo de la spec 004.
 
 
 ## 9. Conclusiones y limitaciones

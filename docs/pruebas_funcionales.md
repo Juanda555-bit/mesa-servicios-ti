@@ -177,7 +177,7 @@ Observación menor (no es fallo): el motivo de la placa vacía dice "Debe tener 
 | Resultado esperado | 201; el caso queda `Registrado`, sin prioridad ni técnico; es recuperable en "Mis casos" y en su detalle con los mismos datos enviados; el caso nuevo es el id 6. |
 | Resultado obtenido | `POST /casos` 201. Caso id real = 6 (el previsto), estado `Registrado`, prioridad y técnico vacíos. Aviso "Caso #6 registrado (estado Registrado)" comprobado en la interfaz, sin captura propia (el screenshot expiró y no se repitió para no crear otro caso). "Mis casos" muestra #6, #5, #3 y #1. El detalle del #6 muestra los mismos datos enviados y la línea de tiempo "Inicio → Registrado" por Sara Solicitante. Persistencia tras reiniciar la API: el caso 6 conserva los datos del alta (comprobado en la PF-11; no se reinició la API dentro de esta PF). |
 | Estado | ✅ Aprobada |
-| Evidencia | `evidencias/PF-01-01-formulario.png` (formulario lleno) · `evidencias/PF-01-03-mis-casos.png` (lista con el caso #6) · `evidencias/PF-01-04-detalle-caso-6.png` (detalle y línea de tiempo). No existe `PF-01-02` porque el aviso de registro no se capturó. Complementaria: PF-API-07 (registro por la API). |
+| Evidencia | `evidencias/PF-01-01-formulario.png` (formulario lleno) · `evidencias/PF-01-03-mis-casos.png` (lista con el caso #6) · `evidencias/PF-01-04-detalle-caso-6.png` (detalle y línea de tiempo). No existe `PF-01-02`: no hay captura del aviso "Caso #6 registrado" (el screenshot del MCP expiró y no se repitió el envío para no crear otro caso); es una omisión justificada (D-10). El registro se verificó por snapshot y lo respaldan PF-01-03, PF-01-04 y la consulta del caso 6. Complementaria: PF-API-07 (registro por la API). |
 | Fecha de ejecución | 18/11/2026 |
 | Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
 | Responsable | Simón Herrera |
@@ -196,7 +196,7 @@ Observación menor (no es fallo): el motivo de la placa vacía dice "Debe tener 
 | Resultado esperado | 422 con `detalle` y `campos`, sin crear caso; la interfaz muestra cada motivo junto a su campo; `solicitante1` sigue con 4 casos. |
 | Resultado obtenido | Interfaz: 422 `{"detalle": "Datos de entrada no válidos", "campos": [placa_equipo: "Debe tener al menos 1 carácter", descripcion: "Debe tener al menos 15 caracteres"]}`; la interfaz muestra cada motivo junto al campo y el aviso "Datos de entrada no válidos" (en la captura los campos placa y descripción se ven vacíos porque solo contienen espacios). API: teléfono de 21 → 422 `campos[telefono: "Debe tener como máximo 20 caracteres"]`; fecha `2027-01-01` → 422 `campos[fecha: "La fecha de la falla no puede ser futura"]`. Casos de `solicitante1` antes: 4 (6, 5, 3, 1); después: 4 (6, 5, 3, 1). No se creó ningún caso. |
 | Estado | ✅ Aprobada |
-| Evidencia | `evidencias/PF-02-01-interfaz-422.png` (motivos en la interfaz) · `evidencias/PF-02-red-422.png` (pestaña Red del usuario: `POST /casos` 422, Response con `placa_equipo` y `descripcion`) · `evidencias/PF-02-06-interfaz-red-422-respuesta.json` (cuerpo de la respuesta 422 de la interfaz) · `evidencias/PF-02-03-api-422-telefono-21.json` · `evidencias/PF-02-04-api-422-fecha-futura.json` · `evidencias/PF-02-02-mis-casos-despues.png` · `evidencias/PF-02-05-api-casos-solicitante1-antes-despues.json` (4 casos antes y después). Complementarias: PF-API-06 y PF-API-07. |
+| Evidencia | `evidencias/PF-02-01-interfaz-422.png` (motivos en la interfaz) · `evidencias/PF-02-red-422.png` (pestaña Red del usuario: `POST /casos` 422, Response con `placa_equipo` y `descripcion`) · `evidencias/PF-02-06-interfaz-red-422-respuesta.json` (cuerpo de la respuesta 422 de la interfaz) · `evidencias/PF-02-03-api-422-telefono-21.json` · `evidencias/PF-02-04-api-422-fecha-futura.json` · `evidencias/PF-02-02-mis-casos-despues.png` (misma imagen, con el mismo contenido, que `PF-01-03`) · `evidencias/PF-02-05-api-casos-solicitante1-antes-despues.json` (el "después" lo demuestra este archivo: 4 casos antes y 4 después). Complementarias: PF-API-06 y PF-API-07. |
 | Fecha de ejecución | 18/11/2026 |
 | Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
 | Responsable | Simón Herrera |
@@ -253,7 +253,7 @@ Observación menor (no es fallo): el motivo de la placa vacía dice "Debe tener 
 | Resultado esperado | El caso pasa `Registrado` → `En evaluación` → `Asignado`, con prioridad Alta y Tomás Técnico como responsable; la línea de tiempo registra cada cambio con autor y fecha. |
 | Resultado obtenido | `PATCH .../evaluacion` 200 (prioridad Alta; `Registrado` → `En evaluación`) y `PUT .../tecnico` 200 (Tomás Técnico; `En evaluación` → `Asignado`). El caso real es el 6 (el previsto). La línea de tiempo muestra la evaluación, la asignación y los cambios de estado con autor Carla Coordinadora y su fecha. |
 | Estado | ✅ Aprobada |
-| Evidencia | `evidencias/PF-05-01-caso-6-asignado.png` (detalle del caso 6 `Asignado` con su línea de tiempo). |
+| Evidencia | `evidencias/PF-05-01-caso-6-asignado.png` (detalle del caso 6 `Asignado` con su línea de tiempo). El "antes" (caso 6 `Registrado`) es `evidencias/PF-01-04-detalle-caso-6.png`. |
 | Fecha de ejecución | 18/11/2026 |
 | Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
 | Responsable | Simón Herrera |
@@ -291,7 +291,7 @@ Observación menor (no es fallo): el motivo de la placa vacía dice "Debe tener 
 | Resultado esperado | La reasignación no cambia el estado (`Asignado`) y queda en el historial con el responsable anterior; Teresa Técnica inicia la atención (`En atención`); la lista de Tomás Técnico ya no incluye el caso 6; solo hay un responsable activo. |
 | Resultado obtenido | `PUT .../tecnico` 200 sin cambio de estado (`Asignado`); `POST .../iniciar-atencion` 200 (`En atención`). La línea de tiempo muestra "Reasignación: Responsable: Teresa Técnica (antes: Tomás Técnico)" y "Asignado → En atención" por Teresa Técnica. "Mis casos asignados" de `tecnico1` solo muestra el caso 3. `GET /casos/6` con `tecnico1` → 403. |
 | Estado | ✅ Aprobada |
-| Evidencia | `evidencias/PF-07-01-caso-6-reasignado-en-atencion.png` (tomada con la página al 60 % de zoom para ver la línea de tiempo completa; es la misma imagen que usa la PF-08) · `evidencias/PF-07-02-tecnico1-lista-sin-caso-6.png` · `evidencias/PF-07-03-api-caso6-historial-y-tecnico1.json`. |
+| Evidencia | `evidencias/PF-07-01-caso-6-reasignado-en-atencion.png` (tomada con la página al 60 % de zoom para ver la línea de tiempo completa; se tomó después de la PF-08: muestra las 2 intervenciones y el aviso "Intervención registrada"; es la misma imagen que `PF-08-01`) · `evidencias/PF-07-02-tecnico1-lista-sin-caso-6.png` · `evidencias/PF-07-03-api-caso6-historial-y-tecnico1.json`. |
 | Fecha de ejecución | 18/11/2026 |
 | Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
 | Responsable | Simón Herrera |
@@ -310,7 +310,7 @@ Observación menor (no es fallo): el motivo de la placa vacía dice "Debe tener 
 | Resultado esperado | 201 en cada registro; las intervenciones aparecen en orden cronológico con autor, fecha y duración, sin edición ni borrado; el caso 4 no recibe ninguna de las dos. |
 | Resultado obtenido | Dos `POST` con 201. Las dos intervenciones aparecen en orden cronológico con autor Teresa Técnica, fecha y duración; no hay botones de editar ni borrar. El historial del caso 4 conserva solo su intervención sembrada: ninguna de las dos nuevas. |
 | Estado | ✅ Aprobada |
-| Evidencia | `evidencias/PF-08-01-caso-6-intervenciones.png` (misma imagen, al 60 % de zoom, que `PF-07-01`) · `evidencias/PF-08-02-api-historial-caso6-vs-caso4.json`. Complementaria: PF-API-09. |
+| Evidencia | `evidencias/PF-08-01-caso-6-intervenciones.png` (misma imagen, al 60 % de zoom, que `PF-07-01`) · `evidencias/PF-08-02-api-historial-caso6-vs-caso4.json`. Omisión justificada (D-10): no se recapturó la comparación con el caso 4 (que conserva solo su intervención sembrada); se hizo por la API en `PF-08-02-api-historial-caso6-vs-caso4.json`. Complementaria: PF-API-09. |
 | Fecha de ejecución | 18/11/2026 |
 | Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
 | Responsable | Simón Herrera |
