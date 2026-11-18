@@ -49,11 +49,14 @@ def cargar_configuracion(entorno: Mapping[str, str]) -> Configuracion:
         if expira_min <= 0:
             raise ErrorConfiguracion("JWT_EXPIRA_MIN debe ser un número entero de minutos mayor que 0")
 
-    cors = [
-        origen.strip()
-        for origen in (entorno.get("CORS_ORIGINS") or "http://localhost:5173").split(",")
-        if origen.strip()
+    cors = [o.strip() for o in (entorno.get("CORS_ORIGINS") or "").split(",") if o.strip()] or [
+        "http://localhost:5173"
     ]
+    if "*" in cors:
+        raise ErrorConfiguracion(
+            "CORS_ORIGINS no admite '*': liste los orígenes exactos del frontend separados por coma "
+            "(por ejemplo http://localhost:5173)"
+        )
     return Configuracion(jwt_secret=secreto, jwt_expira_min=expira_min, cors_origenes=cors)
 
 
