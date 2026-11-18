@@ -1,0 +1,85 @@
+{
+  "token": "<TOKEN-OMITIDO>",
+  "datos_identicos_antes_y_despues_del_reinicio": true,
+  "relaciones": [
+    {
+      "caso": 1,
+      "estado": "Registrado",
+      "solicitante": "Sara Solicitante",
+      "dependencia": "Biblioteca",
+      "tecnico_activo": null,
+      "intervenciones": []
+    },
+    {
+      "caso": 2,
+      "estado": "En evaluación",
+      "solicitante": "Samuel Solicitante",
+      "dependencia": "Secretaría",
+      "tecnico_activo": null,
+      "intervenciones": []
+    },
+    {
+      "caso": 3,
+      "estado": "En atención",
+      "solicitante": "Sara Solicitante",
+      "dependencia": "Laboratorio de sistemas",
+      "tecnico_activo": "Tomás Técnico",
+      "intervenciones": []
+    },
+    {
+      "caso": 4,
+      "estado": "En atención",
+      "solicitante": "Samuel Solicitante",
+      "dependencia": "Rectoría",
+      "tecnico_activo": "Teresa Técnica",
+      "intervenciones": [
+        {
+          "autor": "Teresa Técnica",
+          "detalle": "Se revisa la configuración de la cuenta (30 min)"
+        }
+      ]
+    },
+    {
+      "caso": 5,
+      "estado": "Cerrado",
+      "solicitante": "Sara Solicitante",
+      "dependencia": "Tesorería",
+      "tecnico_activo": "Teresa Técnica",
+      "intervenciones": [
+        {
+          "autor": "Teresa Técnica",
+          "detalle": "Se prueba con otro cable de video (15 min)"
+        }
+      ]
+    },
+    {
+      "caso": 6,
+      "estado": "Cerrado",
+      "solicitante": "Sara Solicitante",
+      "dependencia": "Biblioteca",
+      "tecnico_activo": "Teresa Técnica",
+      "intervenciones": [
+        {
+          "autor": "Teresa Técnica",
+          "detalle": "Se revisa la fuente de poder del equipo. (30 min)"
+        },
+        {
+          "autor": "Teresa Técnica",
+          "detalle": "Se reemplaza la fuente de poder y se prueba el arranque. (45 min)"
+        }
+      ]
+    }
+  ],
+  "resumen": {
+    "codigo": 200,
+    "total": 6,
+    "por_estado": {
+      "Registrado": 1,
+      "En evaluación": 1,
+      "Asignado": 0,
+      "En atención": 2,
+      "Resuelto": 0,
+      "Cerrado": 2
+    }
+  }
+}

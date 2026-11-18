@@ -1,0 +1,64 @@
+sqlite 3.49.1
+OK    usuario solicitante
+OK    usuario tecnico
+OK    usuario tecnico 2
+OK    usuario coordinador
+OK   rechazó: rol invalido -> CHECK constraint failed: rol IN ('solicitante', 'tecnico', 'coordinador')
+OK   rechazó: correo duplicado (sin distinguir mayúsculas) -> UNIQUE constraint failed: usuario.correo
+OK   rechazó: correo mal formado -> CHECK constraint failed: correo LIKE '_%@_%._%'
+OK    dependencia
+OK   rechazó: dependencia duplicada -> UNIQUE constraint failed: dependencia.nombre
+OK    registrar caso válido
+OK   rechazó: descripcion corta -> CHECK constraint failed: length(trim(descripcion)) >= 15
+OK   rechazó: fecha inválida -> CHECK constraint failed: date(fecha) IS NOT NULL AND date(fecha) = fecha
+OK   rechazó: fecha inexistente -> CHECK constraint failed: date(fecha) IS NOT NULL AND date(fecha) = fecha
+OK   rechazó: dependencia inexistente -> FOREIGN KEY constraint failed
+OK   rechazó: placa vacía -> CHECK constraint failed: length(trim(placa_equipo)) > 0
+OK   rechazó: estado inicial distinto de Registrado sin prioridad -> CHECK constraint failed: estado = 'Registrado' OR prioridad IS NOT NULL
+OK   rechazó: evaluar sin prioridad -> CHECK constraint failed: estado = 'Registrado' OR prioridad IS NOT NULL
+OK    evaluar con prioridad
+OK   rechazó: prioridad inválida -> CHECK constraint failed: prioridad IS NULL
+                                  OR prioridad IN ('Baja', 'Media', 'Alta', 'Crítica')
+OK    asignar técnico
+OK   rechazó: segunda asignación activa -> UNIQUE constraint failed: asignacion.caso_id
+OK    pasar a Asignado
+OK   rechazó: intervención con duración 0 -> CHECK constraint failed: duracion_min > 0
+OK    pasar a En atención
+OK    registrar intervención
+OK   rechazó: editar intervención -> RN-05: las intervenciones no se editan
+OK   rechazó: borrar intervención -> RN-05: las intervenciones no se eliminan
+OK    retirar asignación (reasignar)
+OK    nueva asignación (reasignar)
+OK   rechazó: reescribir una asignación -> una asignación solo puede retirarse una vez
+OK   rechazó: borrar asignación -> las asignaciones no se eliminan
+OK    intervención del nuevo responsable
+OK   rechazó: resolver sin solución -> CHECK constraint failed: (estado IN ('Resuelto', 'Cerrado')) = (solucion IS NOT NULL)
+OK    resolver con solución
+OK   rechazó: cerrar sin cerrado_en -> CHECK constraint failed: (estado = 'Cerrado') = (cerrado_en IS NOT NULL)
+OK    cerrar caso
+OK   rechazó: modificar caso cerrado -> RN-04: un caso cerrado no puede modificarse
+OK   rechazó: borrar caso -> los casos no se eliminan
+OK   rechazó: borrar usuario con casos -> FOREIGN KEY constraint failed
+OK    historial inicial
+OK    historial cambio
+OK   rechazó: historial mismo estado -> CHECK constraint failed: estado_anterior IS NULL OR estado_anterior <> estado_nuevo
+OK   rechazó: historial estado inválido -> CHECK constraint failed: estado_nuevo IN ('Registrado', 'En evaluación', 'Asignado',
+                            'En atención', 'Resuelto', 'Cerrado')
+OK   rechazó: editar historial -> RN-05: el historial no se edita
+OK   rechazó: borrar historial -> RN-05: el historial no se elimina
+
+--- v_caso_detalle ---
+(1, 'Cerrado', 'Alta', 'Secretaría académica', 'Ana', 'Tania')
+
+--- v_linea_tiempo ---
+('2026-11-18T17:54:42.451Z', 'asignacion', 'Carla', 'Responsable: Tomas')
+('2026-11-18T17:54:42.452Z', 'cambio_estado', 'Ana', 'Inicio → Registrado')
+('2026-11-18T17:54:42.452Z', 'cambio_estado', 'Carla', 'Registrado → En evaluación')
+('2026-11-18T17:54:42.452Z', 'reasignacion', 'Carla', 'Responsable: Tania (antes: Tomas)')
+('2026-11-18T17:54:42.452Z', 'intervencion', 'Tomas', 'Revisé la fuente de poder (30 min)')
+('2026-11-18T17:54:42.452Z', 'intervencion', 'Tania', 'Cambié la fuente (45 min)')
+
+--- plan de consulta (casos del técnico) ---
+(3, 0, 61, 'SEARCH asignacion USING INDEX ix_asignacion_tecnico_activa (tecnico_id=?)')
+
+Resultado: 45 correctas, 0 fallidas

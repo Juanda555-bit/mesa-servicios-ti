@@ -1,0 +1,114 @@
+{
+  "token": "<TOKEN-OMITIDO>",
+  "caso6_historial": [
+    {
+      "momento": "2026-11-18T16:57:19.611000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 4,
+      "autor": "Sara Solicitante",
+      "detalle": "Inicio → Registrado: Caso reportado"
+    },
+    {
+      "momento": "2026-11-18T17:31:18.419000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Registrado → En evaluación: Prioridad: Alta"
+    },
+    {
+      "momento": "2026-11-18T17:31:27.425000Z",
+      "tipo": "asignacion",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Responsable: Tomás Técnico"
+    },
+    {
+      "momento": "2026-11-18T17:31:27.426000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "En evaluación → Asignado"
+    },
+    {
+      "momento": "2026-11-18T17:40:42.797000Z",
+      "tipo": "reasignacion",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Responsable: Teresa Técnica (antes: Tomás Técnico)"
+    },
+    {
+      "momento": "2026-11-18T17:41:06.798000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Asignado → En atención"
+    },
+    {
+      "momento": "2026-11-18T17:47:16.855000Z",
+      "tipo": "intervencion",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Se revisa la fuente de poder del equipo. (30 min)"
+    },
+    {
+      "momento": "2026-11-18T17:47:26.755000Z",
+      "tipo": "intervencion",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Se reemplaza la fuente de poder y se prueba el arranque. (45 min)"
+    }
+  ],
+  "caso4_historial": [
+    {
+      "momento": "2026-11-18T16:53:29.447000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 5,
+      "autor": "Samuel Solicitante",
+      "detalle": "Inicio → Registrado: Caso reportado"
+    },
+    {
+      "momento": "2026-11-18T16:53:29.448000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Registrado → En evaluación: Prioridad: Crítica"
+    },
+    {
+      "momento": "2026-11-18T16:53:29.448000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "En evaluación → Asignado"
+    },
+    {
+      "momento": "2026-11-18T16:53:29.448000Z",
+      "tipo": "asignacion",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Responsable: Tomás Técnico"
+    },
+    {
+      "momento": "2026-11-18T16:53:29.450000Z",
+      "tipo": "reasignacion",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Responsable: Teresa Técnica (antes: Tomás Técnico)"
+    },
+    {
+      "momento": "2026-11-18T16:53:29.452000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Asignado → En atención"
+    },
+    {
+      "momento": "2026-11-18T16:53:29.452000Z",
+      "tipo": "intervencion",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Se revisa la configuración de la cuenta (30 min)"
+    }
+  ],
+  "intervenciones_caso6": 2,
+  "intervenciones_caso4": 1
+}

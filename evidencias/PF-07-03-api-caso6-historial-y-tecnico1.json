@@ -1,0 +1,92 @@
+{
+  "token": "<TOKEN-OMITIDO>",
+  "caso6_get": [
+    200,
+    {
+      "id": 6,
+      "placa_equipo": "PC-PF01-0001",
+      "nombre_usuario": "Usuario Prueba Uno",
+      "telefono": "3001234567",
+      "fecha": "2026-11-17",
+      "descripcion": "El equipo no enciende tras el corte de energia de ayer.",
+      "estado": "En atención",
+      "prioridad": "Alta",
+      "solucion": null,
+      "creado_en": "2026-11-18T16:57:19.609000Z",
+      "resuelto_en": null,
+      "cerrado_en": null,
+      "dependencia": "Biblioteca",
+      "solicitante_id": 4,
+      "solicitante": "Sara Solicitante",
+      "tecnico_id": 3,
+      "tecnico": "Teresa Técnica"
+    }
+  ],
+  "caso6_historial": [
+    {
+      "momento": "2026-11-18T16:57:19.611000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 4,
+      "autor": "Sara Solicitante",
+      "detalle": "Inicio → Registrado: Caso reportado"
+    },
+    {
+      "momento": "2026-11-18T17:31:18.419000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Registrado → En evaluación: Prioridad: Alta"
+    },
+    {
+      "momento": "2026-11-18T17:31:27.425000Z",
+      "tipo": "asignacion",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Responsable: Tomás Técnico"
+    },
+    {
+      "momento": "2026-11-18T17:31:27.426000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "En evaluación → Asignado"
+    },
+    {
+      "momento": "2026-11-18T17:40:42.797000Z",
+      "tipo": "reasignacion",
+      "autor_id": 1,
+      "autor": "Carla Coordinadora",
+      "detalle": "Responsable: Teresa Técnica (antes: Tomás Técnico)"
+    },
+    {
+      "momento": "2026-11-18T17:41:06.798000Z",
+      "tipo": "cambio_estado",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Asignado → En atención"
+    },
+    {
+      "momento": "2026-11-18T17:47:16.855000Z",
+      "tipo": "intervencion",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Se revisa la fuente de poder del equipo. (30 min)"
+    },
+    {
+      "momento": "2026-11-18T17:47:26.755000Z",
+      "tipo": "intervencion",
+      "autor_id": 3,
+      "autor": "Teresa Técnica",
+      "detalle": "Se reemplaza la fuente de poder y se prueba el arranque. (45 min)"
+    }
+  ],
+  "tecnico1_lista_ids": [
+    3
+  ],
+  "tecnico1_get_caso6": [
+    403,
+    {
+      "detalle": "No tiene acceso a este caso"
+    }
+  ]
+}

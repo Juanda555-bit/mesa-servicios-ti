@@ -1,0 +1,79 @@
+{
+  "token": "<TOKEN-OMITIDO>",
+  "resultados": [
+    {
+      "prueba": "solicitante1 evalua caso 6",
+      "metodo": "PATCH",
+      "ruta": "/casos/6/evaluacion",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    },
+    {
+      "prueba": "solicitante1 asigna tecnico caso 6",
+      "metodo": "PUT",
+      "ruta": "/casos/6/tecnico",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    },
+    {
+      "prueba": "solicitante1 cierra caso 6",
+      "metodo": "POST",
+      "ruta": "/casos/6/cerrar",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "Su rol no permite esta acción"
+      }
+    },
+    {
+      "prueba": "tecnico2 (no responsable) inicia atencion caso 6",
+      "metodo": "POST",
+      "ruta": "/casos/6/iniciar-atencion",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    },
+    {
+      "prueba": "tecnico2 (no responsable) registra intervencion caso 6",
+      "metodo": "POST",
+      "ruta": "/casos/6/intervenciones",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    },
+    {
+      "prueba": "solicitante1 abre caso 4 (de solicitante2)",
+      "metodo": "GET",
+      "ruta": "/casos/4",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    },
+    {
+      "prueba": "solicitante1 abre historial caso 4",
+      "metodo": "GET",
+      "ruta": "/casos/4/historial",
+      "codigo": 403,
+      "respuesta": {
+        "detalle": "No tiene acceso a este caso"
+      }
+    }
+  ],
+  "casos_4_y_6_sin_cambios": true,
+  "estado_caso4": "En atención",
+  "estado_caso6": "Asignado",
+  "historial_caso4_6_antes": [
+    7,
+    4
+  ],
+  "historial_caso4_6_despues": [
+    7,
+    4
+  ]
+}
