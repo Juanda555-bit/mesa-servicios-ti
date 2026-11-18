@@ -117,3 +117,11 @@ h2 { font-size: 1.1rem; margin: 1.25rem 0 .5rem; }
 .acciones { margin-top: 1.5rem; }
 .acciones h3 { font-size: 1rem; margin: 1rem 0 .5rem; }
 .acciones .formulario { margin-bottom: 1.25rem; padding: .75rem 1rem; background: var(--superficie); border: 1px solid var(--linea); }
+
+/* Tablero y acciones del coordinador */
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 0 0 1.5rem; }
+.cifra { margin: 0; padding: .6rem .9rem; background: var(--superficie); border: 1px solid var(--linea); border-left: 4px solid var(--acento); }
+.cifra dt { color: var(--tinta-suave); font-size: .9rem; }
+.cifra dd { margin: 0; font-size: 1.75rem; font-weight: 700; color: var(--acento-oscuro); }
+.tablero-tablas { display: grid; gap: 0 2rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); margin-bottom: 1rem; }
+section[aria-label] > h2, .tablero-tablas h2 { font-size: 1.1rem; margin: 1rem 0 .5rem; }

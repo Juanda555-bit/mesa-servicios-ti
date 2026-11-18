@@ -44,3 +44,23 @@ export function registrarIntervencion(id, datos) {
 export function resolverCaso(id, datos) {
   return pedir(`/casos/${id}/resolver`, { metodo: "POST", json: datos });
 }
+
+export function evaluarCaso(id, prioridad) {
+  return pedir(`/casos/${id}/evaluacion`, { metodo: "PATCH", json: { prioridad } });
+}
+
+export function listarTecnicos(senal) {
+  return pedir("/tecnicos", { senal });
+}
+
+export function asignarTecnico(id, tecnicoId) {
+  return pedir(`/casos/${id}/tecnico`, { metodo: "PUT", json: { tecnico_id: tecnicoId } });
+}
+
+export function cerrarCaso(id) {
+  return pedir(`/casos/${id}/cerrar`, { metodo: "POST" });
+}
+
+export function obtenerResumen(senal) {
+  return pedir("/coordinacion/resumen", { senal });
+}
