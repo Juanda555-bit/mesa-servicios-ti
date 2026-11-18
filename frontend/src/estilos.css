@@ -81,3 +81,39 @@ h1 { font-size: 1.5rem; line-height: 1.25; margin: 0 0 1rem; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Formulario de reporte y listas */
+.formulario { max-width: 40rem; }
+.vacio { padding: 2rem 1rem; text-align: center; color: var(--tinta-suave); background: var(--superficie); border: 1px solid var(--linea); }
+.tabla-envoltura { overflow-x: auto; background: var(--superficie); border: 1px solid var(--linea); }
+.tabla { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.tabla th, .tabla td { padding: .6rem .75rem; text-align: left; border-bottom: 1px solid var(--linea); white-space: nowrap; }
+.tabla thead th { background: var(--info-fondo); color: var(--acento-oscuro); }
+.tabla tbody tr:last-child > * { border-bottom: 0; }
+.estado { display: inline-block; padding: .1rem .55rem; font-size: .85rem; font-weight: 600; border: 1px solid var(--acento); color: var(--acento-oscuro); background: var(--info-fondo); border-radius: 2px; }
+.estado-resuelto { color: var(--exito); border-color: var(--exito); background: var(--exito-fondo); }
+.estado-cerrado { color: var(--tinta-suave); border-color: var(--tinta-suave); background: #eceeed; }
+
+/* Detalle del caso */
+h2 { font-size: 1.1rem; margin: 1.25rem 0 .5rem; }
+.enlace { padding: 0; font: inherit; font-weight: 600; color: var(--acento); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+.detalle-rejilla { display: grid; gap: 1.5rem 2rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 52rem) { .detalle-rejilla { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.datos { margin: 0; background: var(--superficie); border: 1px solid var(--linea); }
+.datos-fila { display: grid; grid-template-columns: 10rem 1fr; gap: .5rem; padding: .5rem .75rem; border-bottom: 1px solid var(--linea); }
+.datos-fila:last-child { border-bottom: 0; }
+.datos dt { color: var(--tinta-suave); }
+.datos dd { margin: 0; overflow-wrap: anywhere; }
+.texto-largo { margin: 0; max-width: 70ch; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tiempo { margin: 0; padding: 0; list-style: none; border-left: 3px solid var(--linea); }
+.tiempo-evento { position: relative; margin: 0 0 1rem 1rem; padding: .1rem 0 .1rem .5rem; }
+.tiempo-evento::before { content: ""; position: absolute; left: -1.45rem; top: .55rem; width: .7rem; height: .7rem; border-radius: 50%; background: var(--acento); }
+.tiempo-intervencion::before { background: var(--exito); }
+.tiempo-titulo { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; }
+.tiempo-titulo time, .tiempo-autor { color: var(--tinta-suave); font-size: .9rem; }
+.tiempo-detalle, .tiempo-autor { margin: 0; overflow-wrap: anywhere; }
+
+/* Acciones del técnico */
+.acciones { margin-top: 1.5rem; }
+.acciones h3 { font-size: 1rem; margin: 1rem 0 .5rem; }
+.acciones .formulario { margin-bottom: 1.25rem; padding: .75rem 1rem; background: var(--superficie); border: 1px solid var(--linea); }
