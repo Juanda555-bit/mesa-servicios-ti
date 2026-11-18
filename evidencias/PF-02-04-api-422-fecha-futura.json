@@ -1,0 +1,23 @@
+{
+  "metodo": "POST",
+  "ruta": "/casos",
+  "token": "<TOKEN-OMITIDO>",
+  "entrada": {
+    "placa_equipo": "API-PF02-02",
+    "nombre_usuario": "Usuario Prueba Tres",
+    "telefono": "3001112233",
+    "fecha": "2027-01-01",
+    "descripcion": "Descripcion valida de la falla del equipo",
+    "dependencia_id": 1
+  },
+  "codigo": 422,
+  "respuesta": {
+    "detalle": "Datos de entrada no válidos",
+    "campos": [
+      {
+        "campo": "fecha",
+        "motivo": "La fecha de la falla no puede ser futura"
+      }
+    ]
+  }
+}

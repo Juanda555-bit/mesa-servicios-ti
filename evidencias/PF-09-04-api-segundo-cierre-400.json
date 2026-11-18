@@ -1,0 +1,15 @@
+{
+  "token": "<TOKEN-OMITIDO>",
+  "metodo": "POST",
+  "ruta": "/casos/6/cerrar",
+  "codigo": 400,
+  "respuesta": {
+    "detalle": "El caso está cerrado y no admite cambios"
+  },
+  "estado_antes": "Cerrado",
+  "estado_despues": "Cerrado",
+  "eventos_historial_antes": 10,
+  "eventos_historial_despues": 10,
+  "caso6_sin_cambios": true,
+  "caso3_estado": "En atención"
+}

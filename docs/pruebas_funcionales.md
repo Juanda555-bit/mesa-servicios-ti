@@ -152,6 +152,120 @@ Observación menor (no es fallo): el motivo de la placa vacía dice "Debe tener 
 | Estado | ✅ Pasa |
 | Evidencia | `evidencias/PF-API-10-arranque-secreto-corto.txt` |
 
+### PF-01 — Registro válido de caso
+| Campo | Valor |
+|---|---|
+| Requisito | CA-01 · RF-02 · RN-08 · US-02 (CA-US02.1) · Actividad 6, prueba 1 |
+| Precondiciones | Base SQLite recién sembrada con `python -m backend.seed` (casos 1..5; sin volver a sembrar durante la sesión); API en `http://localhost:8000` y Vite en `http://localhost:5173`; `solicitante1` (Sara Solicitante) con 3 casos (1, 3 y 5). Partida de RF-1b: casos 1..5. |
+| Pasos | 1. Iniciar sesión como `solicitante1` y abrir "Reportar caso". 2. Llenar el formulario con los datos de entrada y enviarlo. 3. Comprobar el aviso de registro. 4. Abrir "Mis casos" y el detalle del caso creado. 5. En la pestaña Red, revisar el método, la ruta y el código. |
+| Entrada | Placa `PC-PF01-0001`; usuario `Usuario Prueba Uno`; teléfono `3001234567`; fecha de la falla `2026-11-17`; dependencia `Biblioteca` (id 1); descripción "El equipo no enciende tras el corte de energia de ayer." |
+| Canal | Interfaz (no se necesita la API: el formulario permite provocar la situación). |
+| Método y ruta (código HTTP obtenido) | `POST /casos` (**201**) · `GET /casos` (200) · `GET /casos/6` (200) |
+| Resultado esperado | 201; el caso queda `Registrado`, sin prioridad ni técnico; es recuperable en "Mis casos" y en su detalle con los mismos datos enviados; el caso nuevo es el id 6. |
+| Resultado obtenido | `POST /casos` 201. Caso id real = 6 (el previsto), estado `Registrado`, prioridad y técnico vacíos. Aviso "Caso #6 registrado (estado Registrado)" comprobado en la interfaz, sin captura propia (el screenshot expiró y no se repitió para no crear otro caso). "Mis casos" muestra #6, #5, #3 y #1. El detalle del #6 muestra los mismos datos enviados y la línea de tiempo "Inicio → Registrado" por Sara Solicitante. Persistencia tras reiniciar la API: el caso 6 conserva los datos del alta (comprobado en la PF-11; no se reinició la API dentro de esta PF). |
+| Estado | ✅ Aprobada |
+| Evidencia | `evidencias/PF-01-01-formulario.png` (formulario lleno) · `evidencias/PF-01-03-mis-casos.png` (lista con el caso #6) · `evidencias/PF-01-04-detalle-caso-6.png` (detalle y línea de tiempo). No existe `PF-01-02` porque el aviso de registro no se capturó. Complementaria: PF-API-07 (registro por la API). |
+| Fecha de ejecución | 18/11/2026 |
+| Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
+| Responsable | Simón Herrera |
+| Equipo de ejecución | PC del equipo (compartido por Simón y Juan) |
+| Revisión visual | Capturas revisadas: sin token ni cabeceras (sin "Curl" ni "Authorize" de Swagger, sin "Headers" de Red ni `sessionStorage`). |
+
+### PF-02 — Registro con datos inválidos
+| Campo | Valor |
+|---|---|
+| Requisito | CA-01 · RN-08 · RF-02 · US-02 (CA-US02.2) · Actividad 6, prueba 2 |
+| Precondiciones | Estado que deja la PF-01: `solicitante1` con 4 casos (6, 5, 3 y 1); API y Vite en marcha sobre la misma base, sin resembrar. |
+| Pasos | 1. Anotar los casos de `solicitante1` (antes). 2. Interfaz: en "Reportar caso", dejar la placa con 5 espacios y la descripción con 15 espacios, el resto válido, y enviar; revisar los motivos junto a cada campo y la respuesta `422` en la pestaña Red (Response). 3. API: `POST /casos` con teléfono de 21 caracteres; `POST /casos` con fecha futura. 4. Anotar de nuevo los casos de `solicitante1` (después). |
+| Entrada | Interfaz: placa `     ` (5 espacios); descripción de 15 espacios; usuario `Usuario Prueba Dos`; teléfono `3009876543`; fecha `2026-11-17`; dependencia `Secretaría` (id 5). API: teléfono de 21 dígitos; fecha `2027-01-01` (resto de campos válidos). |
+| Canal y motivo | Interfaz para espacios en blanco (el navegador permite enviarlos y los rechaza el backend, que recorta los espacios). API (petición HTTP con un script de Python, no con Swagger) para teléfono de más de 20 caracteres y fecha futura: el formulario los bloquea antes de enviar (`maxLength=20` en teléfono y `max=hoy` en fecha), así que por la interfaz nunca llegan al backend. |
+| Método y ruta (código HTTP obtenido) | `POST /casos` interfaz (**422**) · `POST /casos` teléfono de 21 (**422**) · `POST /casos` fecha futura (**422**) · `GET /casos` antes y después (200) |
+| Resultado esperado | 422 con `detalle` y `campos`, sin crear caso; la interfaz muestra cada motivo junto a su campo; `solicitante1` sigue con 4 casos. |
+| Resultado obtenido | Interfaz: 422 `{"detalle": "Datos de entrada no válidos", "campos": [placa_equipo: "Debe tener al menos 1 carácter", descripcion: "Debe tener al menos 15 caracteres"]}`; la interfaz muestra cada motivo junto al campo y el aviso "Datos de entrada no válidos" (en la captura los campos placa y descripción se ven vacíos porque solo contienen espacios). API: teléfono de 21 → 422 `campos[telefono: "Debe tener como máximo 20 caracteres"]`; fecha `2027-01-01` → 422 `campos[fecha: "La fecha de la falla no puede ser futura"]`. Casos de `solicitante1` antes: 4 (6, 5, 3, 1); después: 4 (6, 5, 3, 1). No se creó ningún caso. |
+| Estado | ✅ Aprobada |
+| Evidencia | `evidencias/PF-02-01-interfaz-422.png` (motivos en la interfaz) · `evidencias/PF-02-red-422.png` (pestaña Red del usuario: `POST /casos` 422, Response con `placa_equipo` y `descripcion`) · `evidencias/PF-02-06-interfaz-red-422-respuesta.json` (cuerpo de la respuesta 422 de la interfaz) · `evidencias/PF-02-03-api-422-telefono-21.json` · `evidencias/PF-02-04-api-422-fecha-futura.json` · `evidencias/PF-02-02-mis-casos-despues.png` · `evidencias/PF-02-05-api-casos-solicitante1-antes-despues.json` (4 casos antes y después). Complementarias: PF-API-06 y PF-API-07. |
+| Fecha de ejecución | 18/11/2026 |
+| Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
+| Responsable | Simón Herrera |
+| Equipo de ejecución | PC del equipo (compartido por Simón y Juan) |
+| Revisión visual | Capturas revisadas: sin token ni cabeceras. En `PF-02-red-422.png` solo se muestra la respuesta (Response), sin "Headers" de Red; ninguna captura muestra "Curl", "Authorize" ni `sessionStorage`. |
+
+### PF-03 — Consulta de caso existente
+| Campo | Valor |
+|---|---|
+| Requisito | CA-03 · RF-03 · US-03 (CA-US03.2) · Actividad 6, prueba 3 |
+| Precondiciones | Caso 3 (`Asignado` a tecnico1, con prioridad Alta, de `solicitante1`) tal como lo deja el seeder y la PF-02 (sin cambios); sesión de `solicitante1`. |
+| Pasos | 1. Iniciar sesión como `solicitante1` y abrir el detalle del caso #3 desde "Mis casos". 2. Comparar lo mostrado con la respuesta de la API `GET /casos/3`. 3. Revisar en la pestaña Red `GET /casos/3` y `GET /casos/3/historial`. |
+| Entrada | Caso #3 (placa `LAB-102`). |
+| Canal | Interfaz y API (`GET /casos/3` con el token de `solicitante1`, para comparar los valores). |
+| Método y ruta (código HTTP obtenido) | `GET /casos/3` (**200**) · `GET /casos/3/historial` (200) |
+| Resultado esperado | 200; la interfaz muestra datos del reporte, estado, prioridad y responsable iguales a los de la respuesta de la API. |
+| Resultado obtenido | La interfaz y la API coinciden: placa `LAB-102`, dependencia Laboratorio de sistemas, usuario Sara Solicitante (Pedro Díaz, 3001234567), fecha 16/11/2026, estado `Asignado`, prioridad Alta, responsable Tomás Técnico (tecnico1, `tecnico_id` 2), descripción "Tres equipos del laboratorio sin internet". Historial: Registrado, En evaluación (Prioridad: Alta), Asignado y Asignación a Tomás Técnico. |
+| Estado | ✅ Aprobada |
+| Evidencia | `evidencias/PF-03-01-detalle-caso-3.png` (detalle en la interfaz) · `evidencias/PF-03-02-api-get-caso-3.json` (respuesta de la API). Observación: no hay captura de la pestaña Red (`PF-03-red.png`) por decisión del usuario, porque el caso 3 cambió a `En atención` en la sesión (PF-09) y ya no se podía repetir con el mismo estado; la prueba se apoya en las dos evidencias anteriores, tomadas en su momento. |
+| Fecha de ejecución | 18/11/2026 |
+| Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
+| Responsable | Simón Herrera |
+| Equipo de ejecución | PC del equipo (compartido por Simón y Juan) |
+| Revisión visual | Capturas revisadas: sin token ni cabeceras (sin "Curl", "Authorize", "Headers" de Red ni `sessionStorage`). |
+
+### PF-04 — Consulta de caso inexistente
+| Campo | Valor |
+|---|---|
+| Requisito | RF-03 · RNF-04 · US-03 (CA-US03.3) · Actividad 6, prueba 4 |
+| Precondiciones | Sesión de `solicitante1`; no existe el caso 9999; los casos 1..6 no cambian. |
+| Pasos | `GET /casos/9999` con el token de `solicitante1` y revisar el código y el cuerpo. |
+| Entrada | Identificador `9999`. |
+| Canal y motivo | API (petición HTTP): la interfaz no permite pedir un id arbitrario porque se navega por estado, sin URL por caso. |
+| Método y ruta (código HTTP obtenido) | `GET /casos/9999` (**404**) |
+| Resultado esperado | 404 con `{"detalle": "El caso no existe"}`, sin trazas. |
+| Resultado obtenido | 404, cuerpo `{"detalle": "El caso no existe"}`, sin traza. |
+| Estado | ✅ Aprobada |
+| Evidencia | `evidencias/PF-04-01-api-get-caso-9999.json`. Complementaria: PF-API-08. |
+| Fecha de ejecución | 18/11/2026 |
+| Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
+| Responsable | Simón Herrera |
+| Equipo de ejecución | PC del equipo (compartido por Simón y Juan) |
+| Revisión visual | Sin capturas de imagen (la evidencia es un `.json` sin token). |
+
+### PF-09 — Cierre de caso y consulta de resultado
+| Campo | Valor |
+|---|---|
+| Requisito | CA-05 · RF-08 · RN-01 · RN-03 · RN-04 · US-08 (CA-US08.1..CA-US08.4) · Actividad 6, prueba 9 |
+| Precondiciones | Estado que dejan las PF-01..PF-08 en la misma base: caso 6 `En atención` (tecnico2) con 2 intervenciones; caso 3 `Asignado` a tecnico1 sin intervenciones. |
+| Pasos | 1. Caso 6: tecnico2 "Resolver" con solución; coordinador "Cerrar caso" (aceptando el aviso); `solicitante1` abre el caso 6. 2. Caso 3: tecnico1 "Iniciar atención" y "Resolver" con solución sin registrar intervención; revisar el `400` en la interfaz y en la pestaña Red (Response). 3. API: el coordinador cierra de nuevo el caso 6. |
+| Entrada | Caso 6: solución "Se reemplazó la fuente de poder; el equipo enciende y opera con normalidad." Caso 3: solución con texto y sin intervenciones. Segundo cierre del caso 6 por el coordinador. |
+| Canal y motivo | Interfaz para el cierre del caso 6 y para "resolver sin intervención" (caso 3), porque el formulario de resolver se ofrece en `En atención` aunque no haya intervenciones. API para "volver a cerrar" el caso 6: la interfaz no ofrece acciones sobre un caso `Cerrado`. |
+| Método y ruta (código HTTP obtenido) | `POST /casos/6/resolver` (200) · `POST /casos/6/cerrar` (200) · `POST /casos/3/iniciar-atencion` (200) · `POST /casos/3/resolver` (**400**) · `POST /casos/6/cerrar` por la API (**400**) |
+| Resultado esperado | El caso 6 queda `Cerrado` y el solicitante ve la solución y la finalización; resolver sin intervención → 400; volver a cerrar → 400; el caso 3 sigue `En atención` y el caso 6 sigue `Cerrado`, ambos sin cambios. |
+| Resultado obtenido | Caso 6: `Resuelto` (200) y `Cerrado` (200); `solicitante1` ve estado `Cerrado`, la solución, Resuelto 12:51 y Cerrado 12:52. Caso 3: iniciar atención 200; resolver sin intervención → 400 `{"detalle": "Registre al menos una intervención antes de resolver el caso"}`; el caso 3 queda `En atención` sin intervenciones. API: segundo cierre del caso 6 → 400 `{"detalle": "El caso está cerrado y no admite cambios"}`; el caso 6 quedó con 10 eventos de historial antes y después. |
+| Estado | ✅ Aprobada |
+| Evidencia | `evidencias/PF-09-02-solicitante-ve-solucion-caso-6.png` (resultado visto por el solicitante) · `evidencias/PF-09-03-interfaz-resolver-sin-intervencion-400.png` (error en la interfaz) · `evidencias/PF-09-red-400.png` (pestaña Red del usuario: `POST /casos/3/resolver` 400, Response "Registre al menos una intervención antes de resolver el caso") · `evidencias/PF-09-01-interfaz-resolver-sin-intervencion-400.json` · `evidencias/PF-09-04-api-segundo-cierre-400.json`. Complementaria: PF-API-09. |
+| Fecha de ejecución | 18/11/2026 |
+| Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
+| Responsable | Simón Herrera |
+| Equipo de ejecución | PC del equipo (compartido por Simón y Juan) |
+| Revisión visual | Capturas revisadas: sin token ni cabeceras. En `PF-09-red-400.png` solo se ve la respuesta (Response), sin "Headers"; sin "Curl", "Authorize" ni `sessionStorage`. |
+
+### PF-10 — Consulta consolidada de coordinación
+| Campo | Valor |
+|---|---|
+| Requisito | CA-06 · RF-10 · RN-07 · US-10 (CA-US10.1, CA-US10.2) · Actividad 6, prueba 10 |
+| Precondiciones | Casos 1..6 tal como los dejó la PF-09 (1 `Registrado`, 1 `En evaluación`, 2 `En atención`, 2 `Cerrado`); sesiones de `coordinador`, `solicitante1` y `tecnico1`. |
+| Pasos | 1. Iniciar sesión como `coordinador` y abrir el tablero; comparar con la respuesta en la pestaña Red (Response). 2. API: `GET /coordinacion/resumen` con `solicitante1` y con `tecnico1`. |
+| Entrada | Ninguna (consulta). |
+| Canal y motivo | Interfaz para el tablero. API para el `403`: la interfaz no ofrece el tablero a otros roles. |
+| Método y ruta (código HTTP obtenido) | `GET /coordinacion/resumen` coordinador (**200**) · mismo recurso con `solicitante1` (**403**) y con `tecnico1` (**403**) |
+| Resultado esperado | 200 con 6 casos: 1 `Registrado`, 1 `En evaluación`, 2 `En atención`, 2 `Cerrado`; totales, conteo por estado y desglose por técnico coincidentes con el tablero; otro rol → 403. |
+| Resultado obtenido | 200: total 6, abiertos 4, cerrados 2, sin asignar 2; Registrado 1, En evaluación 1, Asignado 0, En atención 2, Resuelto 0, Cerrado 2; por técnico: Teresa Técnica 1 abierto y 2 cerrados, Tomás Técnico 1 abierto y 0 cerrados. El tablero coincide con la respuesta. `solicitante1` y `tecnico1` → 403 "Su rol no permite esta acción". |
+| Estado | ✅ Aprobada |
+| Evidencia | `evidencias/PF-10-03-tablero-coordinacion.png` (tablero) · `evidencias/PF-10-red.png` (pestaña Red del usuario: `GET /coordinacion/resumen` 200, Response con total 6, 4 abiertos, 2 cerrados y 2 sin asignar) · `evidencias/PF-10-01-api-resumen-200.json` · `evidencias/PF-10-02-api-resumen-403-solicitante-tecnico.json`. |
+| Fecha de ejecución | 18/11/2026 |
+| Código probado | `main` `58c80e0` (sin cambios de código en la rama `feat/004-pruebas-y-entrega`) |
+| Responsable | Simón Herrera |
+| Equipo de ejecución | PC del equipo (compartido por Simón y Juan) |
+| Revisión visual | Capturas revisadas: sin token ni cabeceras. En `PF-10-red.png` solo se ve la respuesta (Response), sin "Headers"; sin "Curl", "Authorize" ni `sessionStorage`. |
+
 ### PF-12 — Integración interfaz–API–base de datos (flujo completo desde la interfaz)
 | Campo | Valor |
 |---|---|

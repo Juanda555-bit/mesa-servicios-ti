@@ -1,0 +1,23 @@
+{
+  "metodo": "POST",
+  "ruta": "/casos",
+  "token": "<TOKEN-OMITIDO>",
+  "entrada": {
+    "placa_equipo": "API-PF02-01",
+    "nombre_usuario": "Usuario Prueba Tres",
+    "telefono": "123456789012345678901",
+    "fecha": "2026-11-17",
+    "descripcion": "Descripcion valida de la falla del equipo",
+    "dependencia_id": 1
+  },
+  "codigo": 422,
+  "respuesta": {
+    "detalle": "Datos de entrada no válidos",
+    "campos": [
+      {
+        "campo": "telefono",
+        "motivo": "Debe tener como máximo 20 caracteres"
+      }
+    ]
+  }
+}

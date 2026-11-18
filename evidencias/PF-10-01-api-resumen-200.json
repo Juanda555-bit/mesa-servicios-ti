@@ -1,0 +1,92 @@
+{
+  "token": "<TOKEN-OMITIDO>",
+  "metodo": "GET",
+  "ruta": "/coordinacion/resumen",
+  "codigo": 200,
+  "respuesta": {
+    "total": 6,
+    "abiertos": 4,
+    "cerrados": 2,
+    "por_estado": {
+      "Registrado": 1,
+      "En evaluación": 1,
+      "Asignado": 0,
+      "En atención": 2,
+      "Resuelto": 0,
+      "Cerrado": 2
+    },
+    "por_tecnico": [
+      {
+        "tecnico_id": 3,
+        "tecnico": "Teresa Técnica",
+        "abiertos": 1,
+        "cerrados": 2
+      },
+      {
+        "tecnico_id": 2,
+        "tecnico": "Tomás Técnico",
+        "abiertos": 1,
+        "cerrados": 0
+      }
+    ],
+    "sin_asignar": 2,
+    "casos_abiertos": [
+      {
+        "id": 4,
+        "placa_equipo": "REC-007",
+        "estado": "En atención",
+        "prioridad": "Crítica",
+        "tecnico": "Teresa Técnica",
+        "creado_en": "2026-11-18T16:53:29.447000Z",
+        "cerrado_en": null
+      },
+      {
+        "id": 3,
+        "placa_equipo": "LAB-102",
+        "estado": "En atención",
+        "prioridad": "Alta",
+        "tecnico": "Tomás Técnico",
+        "creado_en": "2026-11-18T16:53:29.445000Z",
+        "cerrado_en": null
+      },
+      {
+        "id": 2,
+        "placa_equipo": "SEC-031",
+        "estado": "En evaluación",
+        "prioridad": "Media",
+        "tecnico": null,
+        "creado_en": "2026-11-18T16:53:29.444000Z",
+        "cerrado_en": null
+      },
+      {
+        "id": 1,
+        "placa_equipo": "BIB-014",
+        "estado": "Registrado",
+        "prioridad": null,
+        "tecnico": null,
+        "creado_en": "2026-11-18T16:53:29.442000Z",
+        "cerrado_en": null
+      }
+    ],
+    "casos_cerrados": [
+      {
+        "id": 6,
+        "placa_equipo": "PC-PF01-0001",
+        "estado": "Cerrado",
+        "prioridad": "Alta",
+        "tecnico": "Teresa Técnica",
+        "creado_en": "2026-11-18T16:57:19.609000Z",
+        "cerrado_en": "2026-11-18T17:52:08.539000Z"
+      },
+      {
+        "id": 5,
+        "placa_equipo": "TES-020",
+        "estado": "Cerrado",
+        "prioridad": "Baja",
+        "tecnico": "Teresa Técnica",
+        "creado_en": "2026-11-18T16:53:29.453000Z",
+        "cerrado_en": "2026-11-18T16:53:29.456000Z"
+      }
+    ]
+  }
+}

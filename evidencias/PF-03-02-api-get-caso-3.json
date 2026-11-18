@@ -1,0 +1,25 @@
+{
+  "metodo": "GET",
+  "ruta": "/casos/3",
+  "token": "<TOKEN-OMITIDO>",
+  "codigo": 200,
+  "respuesta": {
+    "id": 3,
+    "placa_equipo": "LAB-102",
+    "nombre_usuario": "Pedro Díaz",
+    "telefono": "3001234567",
+    "fecha": "2026-11-16",
+    "descripcion": "Tres equipos del laboratorio sin internet",
+    "estado": "Asignado",
+    "prioridad": "Alta",
+    "solucion": null,
+    "creado_en": "2026-11-18T16:53:29.445000Z",
+    "resuelto_en": null,
+    "cerrado_en": null,
+    "dependencia": "Laboratorio de sistemas",
+    "solicitante_id": 4,
+    "solicitante": "Sara Solicitante",
+    "tecnico_id": 2,
+    "tecnico": "Tomás Técnico"
+  }
+}

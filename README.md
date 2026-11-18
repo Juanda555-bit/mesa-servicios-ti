@@ -190,7 +190,7 @@ Pruebas automáticas, desde la raíz y con el entorno activado:
 python -m pytest backend -v
 ```
 
-Resultado de la última ejecución (18/11/2026, rama `local/003-trabajo`, `python -m pytest backend -v`): **85 pasan, 0 fallan** (59 en `test_api.py`, 3 en `test_capas.py`, 18 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
+Resultado de la última ejecución (18/11/2026, `main` en el commit `58c80e0`, `python -m pytest backend -v`): **85 pasan, 0 fallan** (59 en `test_api.py`, 3 en `test_capas.py`, 18 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
 
 | Prueba | Tipo | Requisito | Resultado |
 |---|---|---|---|
@@ -242,7 +242,45 @@ Resultado de la última ejecución (18/11/2026, rama `local/003-trabajo`, `pytho
 | `test_flujo_completo_con_el_orm` | integración | RF-02 a RF-09 | Pasa |
 | `test_protecciones_de_la_base_a_traves_del_orm` | integración | RN-02, RN-04, RN-05 | Pasa |
 
-Pruebas funcionales PF: Pendiente (se documentarán en un archivo enlazado desde este README, con evidencias en `evidencias/`).
+### Pruebas funcionales (PF)
+
+Las 22 pruebas funcionales (PF-01 a PF-12 por la interfaz y la API; PF-API-01 a PF-API-10 contra la API) están documentadas con todos sus campos (requisito, precondiciones, pasos, entrada, método y ruta con código HTTP, resultado esperado y obtenido, estado y evidencia) en [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md). Las capturas y salidas están en [`evidencias/`](evidencias/) y la relación con los criterios de aceptación en la matriz de trazabilidad: [`docs/trazabilidad.md`](docs/trazabilidad.md). Las PF-01 a PF-11 se ejecutaron seguidas el 18/11/2026 sobre una sola base sembrada y sobre el código de `main` en el commit `58c80e0`; las capturas de la pestaña Red solo muestran la respuesta, sin token ni cabeceras.
+
+| Prueba | Descripción | Requisito | Resultado |
+|---|---|---|---|
+| PF-01 | Registro válido de caso | CA-01 · RF-02 · RN-08 | Aprobada |
+| PF-02 | Registro con datos inválidos (422) | CA-01 · RN-08 | Aprobada |
+| PF-03 | Consulta de caso existente | CA-03 · RF-03 | Aprobada |
+| PF-04 | Consulta de caso inexistente (404) | RF-03 · RNF-04 | Aprobada |
+| PF-05 | Gestión por personal autorizado (evaluar y asignar) | CA-02 · RN-07 · RN-09 · RN-10 | Aprobada |
+| PF-06 | Gestión por actor no autorizado (403) | CA-02 · RN-02 · RN-06 · RN-07 | Aprobada |
+| PF-07 | Consulta de estado y responsable tras reasignar | CA-03 · RN-02 · RN-10 | Aprobada |
+| PF-08 | Historial de intervenciones | CA-04 · RN-05 | Aprobada |
+| PF-09 | Cierre de caso y consulta de resultado (400 en transiciones inválidas) | CA-05 · RN-01 · RN-03 · RN-04 | Aprobada |
+| PF-10 | Consulta consolidada de coordinación (403 a otros roles) | CA-06 · RN-07 | Aprobada |
+| PF-11 | Persistencia e integridad de relaciones tras reiniciar la API | CA-01 a CA-06 · RNF-03 | Aprobada |
+| PF-12 | Integración interfaz–API–base de datos: flujo completo | CA-01 a CA-06 | Aprobada |
+| PF-API-01 | Login correcto: token y rol | CA-03 · RF-01 | Aprobada |
+| PF-API-02 | Login fallido indistinguible | CA-03 · RNF-04 | Aprobada |
+| PF-API-03 | Token manipulado | CA-03 · RN-06 | Aprobada |
+| PF-API-04 | Token vencido | CA-03 · RN-06 | Aprobada |
+| PF-API-05 | Sin token y rol sin permiso | CA-02 · CA-06 · RN-07 | Aprobada |
+| PF-API-06 | Registro inválido: 422 con `detalle` y `campos` | CA-01 · RN-08 | Aprobada |
+| PF-API-07 | Teléfono de 20 caracteres aceptado | CA-01 · RF-02 · RN-08 | Aprobada |
+| PF-API-08 | Caso inexistente (404) y caso ajeno (403) | CA-03 · RN-06 | Aprobada |
+| PF-API-09 | Recorrido completo de un caso por la API | CA-01 a CA-06 · RN-01 a RN-05 | Aprobada |
+| PF-API-10 | Arranque rechazado con `JWT_SECRET` corto | RF-1 (spec 002) | Aprobada |
+
+**Cómo reproducirlas.**
+
+1. Preparar el entorno y el `.env` con un `JWT_SECRET` propio (apartado 5).
+2. Arrancar la API: `python -m uvicorn backend.app.main:app` (documentación Swagger en http://localhost:8000/docs).
+3. Sembrar la base una sola vez: `python -m backend.seed` (datos ficticios; para repetir desde cero, borrar `backend/mesa_ti.db` y sembrar de nuevo).
+4. Arrancar el frontend: `cd frontend` y `npm run dev` (http://localhost:5173).
+5. Iniciar sesión con los usuarios del seeder (apartado 5; contraseña de demostración `Mesa2026*`): `solicitante1` para PF-01 a PF-04, `coordinador` y `tecnico1` o `tecnico2` para PF-05 a PF-12.
+6. Seguir los pasos de cada prueba en [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md) en orden numérico, sin volver a sembrar entre ellas: cada PF parte del estado que dejó la anterior. Los casos de error que la interfaz no permite provocar (por ejemplo `404`, `403` y el segundo cierre) se hacen por la API, con Swagger en `/docs` (botón **Authorize**) o con peticiones HTTP.
+
+Verificación automática de esta versión (`main`, commit `58c80e0`): `python -m pytest backend -q` da 85 pasan y 0 fallan, y `python -I backend/db/probar_esquema.py` da 45 correctas y 0 fallidas.
 
 Matriz de trazabilidad: [`docs/trazabilidad.md`](docs/trazabilidad.md).
 

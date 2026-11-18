@@ -1,0 +1,28 @@
+{
+  "canal": "interfaz (Reportar caso, solicitante1)",
+  "metodo": "POST",
+  "ruta": "/casos",
+  "token": "<TOKEN-OMITIDO>",
+  "payload": {
+    "placa_equipo": "     ",
+    "nombre_usuario": "Usuario Prueba Dos",
+    "telefono": "3009876543",
+    "fecha": "2026-11-17",
+    "descripcion": "               ",
+    "dependencia_id": 5
+  },
+  "codigo": 422,
+  "respuesta": {
+    "detalle": "Datos de entrada no válidos",
+    "campos": [
+      {
+        "campo": "placa_equipo",
+        "motivo": "Debe tener al menos 1 carácter"
+      },
+      {
+        "campo": "descripcion",
+        "motivo": "Debe tener al menos 15 caracteres"
+      }
+    ]
+  }
+}
