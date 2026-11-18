@@ -1,0 +1,30 @@
+{
+  "prueba": "PF-02",
+  "intercambios": [
+    {
+      "peticion": "POST /auth/login",
+      "autenticado_como": null,
+      "cuerpo_enviado": {
+        "correo": "noexiste@mesa.edu.co",
+        "password": "Mesa2026*"
+      },
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "Correo o contraseña incorrectos"
+      }
+    },
+    {
+      "peticion": "POST /auth/login",
+      "autenticado_como": null,
+      "cuerpo_enviado": {
+        "correo": "solicitante1@mesa.edu.co",
+        "password": "Incorrecta123"
+      },
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "Correo o contraseña incorrectos"
+      }
+    }
+  ],
+  "identico": true
+}

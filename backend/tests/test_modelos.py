@@ -6,6 +6,7 @@ Ejecución (desde la raíz del repositorio):
     .venv/Scripts/python.exe -m pytest backend -q            # con pytest
 """
 
+import inspect
 import sqlite3
 import sys
 import tempfile
@@ -34,23 +35,22 @@ from backend.db import (
 )
 
 
-def _motor_temporal():
-    carpeta = Path(tempfile.mkdtemp(prefix="mesa_ti_"))
+def _motor_temporal(carpeta: Path):
     ruta = carpeta / "prueba.db"
     engine = crear_engine(f"sqlite:///{ruta.as_posix()}")
     assert inicializar_base(engine) is True
     return engine, ruta
 
 
-def test_inicializar_base_es_idempotente():
-    engine, _ = _motor_temporal()
+def test_inicializar_base_es_idempotente(tmp_path):
+    engine, _ = _motor_temporal(tmp_path)
     assert inicializar_base(engine) is False
 
 
-def test_modelos_coinciden_con_el_esquema():
+def test_modelos_coinciden_con_el_esquema(tmp_path):
     """Columnas, nulabilidad, claves primarias y foráneas de cada modelo frente
     al esquema real creado por schema.sql."""
-    engine, ruta = _motor_temporal()
+    engine, ruta = _motor_temporal(tmp_path)
     bd = sqlite3.connect(ruta)
     for tabla in Base.metadata.sorted_tables:
         real = {
@@ -77,14 +77,14 @@ def test_modelos_coinciden_con_el_esquema():
     bd.close()
 
 
-def test_claves_foraneas_activas_en_cada_conexion():
-    engine, _ = _motor_temporal()
+def test_claves_foraneas_activas_en_cada_conexion(tmp_path):
+    engine, _ = _motor_temporal(tmp_path)
     with engine.connect() as con:
         assert con.exec_driver_sql("PRAGMA foreign_keys").scalar() == 1
 
 
-def test_flujo_completo_con_el_orm():
-    engine, _ = _motor_temporal()
+def test_flujo_completo_con_el_orm(tmp_path):
+    engine, _ = _motor_temporal(tmp_path)
     with Session(engine) as s:
         ana = Usuario(nombre="Ana", correo="ana@x.co", password_hash="h", rol=Rol.SOLICITANTE)
         tomas = Usuario(nombre="Tomás", correo="tomas@x.co", password_hash="h", rol=Rol.TECNICO)
@@ -164,8 +164,8 @@ def _debe_fallar(sesion: Session, accion):
     raise AssertionError("la base debía rechazar la operación")
 
 
-def test_protecciones_de_la_base_a_traves_del_orm():
-    engine, _ = _motor_temporal()
+def test_protecciones_de_la_base_a_traves_del_orm(tmp_path):
+    engine, _ = _motor_temporal(tmp_path)
     with Session(engine) as s:
         ana = Usuario(nombre="Ana", correo="ana@x.co", password_hash="h", rol=Rol.SOLICITANTE)
         tomas = Usuario(nombre="Tomás", correo="tomas@x.co", password_hash="h", rol=Rol.TECNICO)
@@ -227,7 +227,12 @@ def _ejecutar_todo() -> int:
     fallidas = 0
     for nombre, prueba in pruebas:
         try:
-            prueba()
+            # Sin pytest: una carpeta temporal por prueba, borrada al terminar (en Windows puede quedar si SQLite sigue abierto)
+            with tempfile.TemporaryDirectory(prefix="mesa_ti_", ignore_cleanup_errors=True) as carpeta:
+                if "tmp_path" in inspect.signature(prueba).parameters:
+                    prueba(Path(carpeta))
+                else:
+                    prueba()
             print("OK   ", nombre)
         except Exception as e:  # noqa: BLE001
             fallidas += 1

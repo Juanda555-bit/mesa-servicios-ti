@@ -26,8 +26,26 @@ graph LR
 
 Responsabilidades:
 - **Frontend:** pantallas por rol, formularios y línea de tiempo. No decide permisos; solo los refleja.
-- **Backend:** única fuente de verdad de la lógica: valida entradas, aplica los permisos por rol y controla las transiciones de estado y sus precondiciones (RN-01, RN-03), aunque la solicitud no venga de la interfaz. Se verifica con pruebas.
+- **Backend:** única fuente de verdad de la lógica: valida entradas, aplica los permisos por rol y controla las transiciones de estado y sus precondiciones (RN-01, RN-03), aunque la solicitud no venga de la interfaz. Se verifica con pruebas. Se organiza en capas: los routers solo traducen HTTP, los servicios aplican las reglas y no dependen de FastAPI (lanzan excepciones de dominio que `errores.py` convierte en respuestas), y los esquemas Pydantic validan la forma de los datos.
 - **Base de datos:** protege la integridad de los datos con restricciones, índices y unos pocos triggers de protección, aunque el backend tenga un error (ver sección 3.4).
+
+Estructura final de carpetas del backend:
+
+```
+backend/
+  app/
+    main.py          crea la app, CORS y registra los manejadores de error
+    config.py        lee .env y valida JWT_SECRET (obligatorio, mínimo 32) y JWT_EXPIRA_MIN
+    seguridad.py     hash de contraseñas y token JWT (solo sub y exp)
+    deps.py          sesión, usuario actual (401) y roles permitidos (403)
+    errores.py       manejadores: dominio, HTTP, validación 422, integridad (400) y 500
+    esquemas/        Pydantic de entrada y salida (comun, auth, catalogos, casos, coordinacion)
+    servicios/       reglas RN-01..RN-10 y permisos, sin FastAPI (excepciones, auth, casos, catalogos, coordinacion)
+    routers/         solo HTTP (auth, casos, catalogos, coordinacion)
+  db/                esquema SQL, modelos, conexión y script de verificación
+  seed.py            datos de prueba; exige el mismo JWT_SECRET válido que la API
+  tests/             conftest, test_configuracion, test_capas, test_api, test_modelos
+```
 
 ## 3. Modelo de datos
 
@@ -164,7 +182,8 @@ El esquema se probó con 45 operaciones en SQLite 3.49: un flujo completo válid
 - **Acceso a datos:** modelos SQLAlchemy en `backend/db/models.py` (una clase por tabla y dos vistas de solo lectura). Los estados, roles y prioridades son enumeraciones, y las fechas se leen como `datetime` en UTC.
 - **Conexión:** `backend/db/database.py` activa `PRAGMA foreign_keys = ON` en cada conexión y ofrece `get_session()` para FastAPI. La ruta de la base se toma de `DATABASE_URL` o, si falta, de `backend/mesa_ti.db`.
 - **Pruebas:** `backend/tests/test_modelos.py` comprueba que los modelos coinciden con el esquema real (columnas, nulabilidad, claves primarias y foráneas), el flujo completo con el ORM y las protecciones de la base. Resultado: 5 correctas, 0 fallidas.
-- **Pruebas de la API:** `backend/tests/test_api.py` recorre los endpoints por historia de usuario. Resultado: 25 correctas, 0 fallidas (30 con las de `test_modelos.py`).
+- **Pruebas de la API:** `backend/tests/test_api.py` recorre los endpoints por historia de usuario y comprueba tokens, errores y validaciones. Resultado: 57 correctas, 0 fallidas.
+- **Otras pruebas:** `backend/tests/test_configuracion.py` (secreto y duración del token, 11) y `backend/tests/test_capas.py` (separación de capas, 3). Total de la suite: 76 correctas, 0 fallidas (17/11/2026, rama `feat/002-seguridad-y-capas`). Todas se ejecutan con un secreto ficticio y una base en memoria (`backend/tests/conftest.py`), sin leer `.env`.
 
 ## 4. Máquina de estados
 
@@ -220,9 +239,9 @@ stateDiagram-v2
 
 \* Solo si el caso le corresponde al usuario (RN-06).
 
-Códigos de error (RNF-04): `400` transición de estado inválida, `401` sin token o token inválido, `403` rol o caso no autorizado, `404` caso inexistente, `422` datos inválidos y `500` error interno inesperado, con un mensaje genérico. Sin trazas internas en las respuestas.
+Códigos de error (RNF-04): `400` transición de estado inválida o regla de integridad rechazada por la base, `401` sin token o token inválido, `403` rol o caso no autorizado, `404` caso inexistente, `422` datos inválidos y `500` error interno inesperado, con un mensaje genérico. Todas las respuestas de error usan el cuerpo `{"detalle": "<mensaje>"}`; en `422` añade `campos` (lista de `{campo, motivo}`). Sin trazas internas en las respuestas.
 
-Login: `POST /auth/login` recibe un formulario (`application/x-www-form-urlencoded`) con `username` (el correo del usuario) y `password`. Responde `{access_token, token_type, rol, nombre}`, con `token_type` igual a `"bearer"`; el token se envía después en la cabecera `Authorization: Bearer <token>`.
+Login: `POST /auth/login` recibe un formulario (`application/x-www-form-urlencoded`) con `username` (el correo del usuario) y `password`. Responde `{access_token, token_type, rol, nombre}`, con `token_type` igual a `"bearer"`; el token se envía después en la cabecera `Authorization: Bearer <token>`. El token contiene solo `sub` y `exp` (sin `rol`): el rol llega en la respuesta del login y el backend lo consulta en la base en cada petición. Validaciones sin patrón: el teléfono es un texto no vacío de hasta 20 caracteres y la duración de la intervención debe ser mayor que 0, sin máximo.
 
 Ejemplo de registro:
 
@@ -240,13 +259,9 @@ POST /casos
 
 Respuesta `201`: caso con `estado: "Registrado"`, `prioridad: null`, `tecnico: null`.
 
-**Pendientes para la próxima entrega del backend:**
-- Devolver `400` (y no `409`) cuando la base rechaza una operación por una regla de negocio.
-- Definir una única clave para el cuerpo de los errores y unificarla en toda la API.
-- Retirar una dependencia de hash declarada en `backend/requirements.txt` que no se usa.
-- Separar las capas: que los servicios no dependan de las excepciones HTTP y documentar la estructura final de carpetas.
-- Quitar las dos validaciones no pactadas restantes: el formato del teléfono por patrón y la duración máxima de la intervención.
-- La validación "intervención solo con el caso `En atención`" no es un pendiente: se mantiene como supuesto EQ-06 (ver `docs/entrevista.md`).
+**Nota:** la validación "intervención solo con el caso `En atención`" no es un pendiente: se mantiene como supuesto EQ-06 (ver `docs/entrevista.md`).
+
+**Riesgos aceptados (alcance académico).** (1) `/auth/login` no limita los intentos: cada intento cuesta un cálculo de hash deliberadamente lento, lo que encarece la fuerza bruta pero no la impide. (2) Un caso ajeno responde `403` y uno inexistente `404`, coherente con `reglas-mesa`; esto permite inferir si un id existe.
 
 ## 7. Prototipos de interfaz (descripción)
 

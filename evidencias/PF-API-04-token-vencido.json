@@ -1,0 +1,14 @@
+{
+  "prueba": "PF-04",
+  "intercambios": [
+    {
+      "peticion": "GET /casos",
+      "autenticado_como": "token firmado con la clave de la sesion y exp 5 min en el pasado",
+      "cuerpo_enviado": null,
+      "codigo_http": 401,
+      "respuesta": {
+        "detalle": "No autenticado o token inválido"
+      }
+    }
+  ]
+}

@@ -4,7 +4,6 @@ Esta es la única fuente de verdad del flujo de estados y de los permisos sobre
 un caso. Los routers solo traducen HTTP; el seeder usa estas mismas funciones.
 """
 
-from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -18,10 +17,13 @@ from backend.db import (
     Prioridad,
     Rol,
     Usuario,
+    VCasoDetalle,
+    VLineaTiempo,
 )
 from backend.db.models import ahora_utc
 
-from . import esquemas
+from .. import esquemas
+from .excepciones import DatoInvalido, NoEncontrado, SinPermiso, TransicionInvalida
 
 # RN-01: transiciones permitidas (estado actual -> siguiente).
 TRANSICIONES: dict[Estado, Estado] = {
@@ -32,10 +34,6 @@ TRANSICIONES: dict[Estado, Estado] = {
     Estado.RESUELTO: Estado.CERRADO,
 }
 ESTADOS_REASIGNABLES = {Estado.ASIGNADO, Estado.EN_ATENCION}
-
-
-def _error(codigo: int, mensaje: str) -> HTTPException:
-    return HTTPException(status_code=codigo, detail=mensaje)
 
 
 # ---------------------------------------------------------------- Consultas
@@ -54,26 +52,69 @@ def puede_ver(usuario: Usuario, caso: Caso) -> bool:
     return tecnico_responsable_id(caso) == usuario.id
 
 
+def _filtrar_por_rol(consulta, usuario: Usuario):
+    """RN-06: cada rol ve solo los casos que le corresponden."""
+    if usuario.rol == Rol.SOLICITANTE:
+        return consulta.where(VCasoDetalle.solicitante_id == usuario.id)
+    if usuario.rol == Rol.TECNICO:
+        return consulta.where(VCasoDetalle.tecnico_id == usuario.id)
+    return consulta
+
+
+def detalle_caso(sesion: Session, caso_id: int) -> VCasoDetalle:
+    """Fila actualizada de v_caso_detalle (estado, responsable y solución vigentes)."""
+    consulta = (
+        select(VCasoDetalle)
+        .where(VCasoDetalle.id == caso_id)
+        .execution_options(populate_existing=True)
+    )
+    return sesion.scalars(consulta).one()
+
+
+def listar_casos(
+    sesion: Session, usuario: Usuario, estado: Estado | None = None
+) -> list[VCasoDetalle]:
+    """RF-03 / RN-06: casos visibles para el usuario, opcionalmente por estado."""
+    consulta = _filtrar_por_rol(select(VCasoDetalle), usuario)
+    if estado is not None:
+        consulta = consulta.where(VCasoDetalle.estado == estado)
+    consulta = consulta.order_by(VCasoDetalle.creado_en.desc(), VCasoDetalle.id.desc())
+    return list(sesion.scalars(consulta.execution_options(populate_existing=True)))
+
+
+def linea_de_tiempo(sesion: Session, usuario: Usuario, caso_id: int) -> list[VLineaTiempo]:
+    """RF-09 / RN-06: historial del caso, solo si el usuario puede verlo."""
+    obtener_caso_visible(sesion, usuario, caso_id)
+    consulta = (
+        select(VLineaTiempo)
+        .where(VLineaTiempo.caso_id == caso_id)
+        .order_by(VLineaTiempo.momento, VLineaTiempo.orden, VLineaTiempo.ref_id)
+    )
+    return list(sesion.scalars(consulta))
+
+
 def obtener_caso_visible(sesion: Session, usuario: Usuario, caso_id: int) -> Caso:
     caso = sesion.get(Caso, caso_id)
     if caso is None:
-        raise _error(status.HTTP_404_NOT_FOUND, "El caso no existe")
+        raise NoEncontrado("El caso no existe")
     if not puede_ver(usuario, caso):
-        raise _error(status.HTTP_403_FORBIDDEN, "No tiene acceso a este caso")
+        raise SinPermiso("No tiene acceso a este caso")
     return caso
+
+
+def _validar_transicion(caso: Caso, nuevo: Estado) -> None:
+    """RN-01 / RN-04: valida la transición sin modificar nada."""
+    if caso.estado == Estado.CERRADO:
+        raise TransicionInvalida("El caso está cerrado y no admite cambios")
+    if TRANSICIONES.get(caso.estado) != nuevo:
+        raise TransicionInvalida(f"Transición no permitida: {caso.estado.value} → {nuevo.value}")
 
 
 def _cambiar_estado(
     sesion: Session, caso: Caso, nuevo: Estado, autor: Usuario, comentario: str | None = None
 ) -> None:
     """Aplica RN-01 y deja el cambio en el historial (quién y cuándo)."""
-    if caso.estado == Estado.CERRADO:
-        raise _error(status.HTTP_400_BAD_REQUEST, "El caso está cerrado y no admite cambios")
-    if TRANSICIONES.get(caso.estado) != nuevo:
-        raise _error(
-            status.HTTP_400_BAD_REQUEST,
-            f"Transición no permitida: {caso.estado.value} → {nuevo.value}",
-        )
+    _validar_transicion(caso, nuevo)
     anterior = caso.estado
     caso.estado = nuevo
     sesion.add(
@@ -90,7 +131,7 @@ def _cambiar_estado(
 def _exigir_responsable(caso: Caso, tecnico: Usuario) -> None:
     """RN-02: solo el técnico responsable actúa sobre el caso."""
     if tecnico_responsable_id(caso) != tecnico.id:
-        raise _error(status.HTTP_403_FORBIDDEN, "Solo el técnico responsable puede hacer esto")
+        raise SinPermiso("Solo el técnico responsable puede hacer esto")
 
 
 # ---------------------------------------------------------------- Acciones
@@ -99,7 +140,7 @@ def registrar_caso(sesion: Session, solicitante: Usuario, datos: esquemas.CasoNu
     """RF-02 / CA-01: el caso nace en Registrado, sin prioridad ni responsable."""
     dependencia = sesion.get(Dependencia, datos.dependencia_id)
     if dependencia is None or not dependencia.activa:
-        raise _error(422, "La dependencia no existe")
+        raise DatoInvalido("La dependencia no existe", "dependencia_id")
     caso = Caso(**datos.model_dump(), solicitante_id=solicitante.id, estado=Estado.REGISTRADO)
     sesion.add(caso)
     sesion.add(
@@ -118,7 +159,7 @@ def registrar_caso(sesion: Session, solicitante: Usuario, datos: esquemas.CasoNu
 def evaluar(sesion: Session, caso: Caso, coordinador: Usuario, prioridad: Prioridad) -> None:
     """RF-04 / RN-09: el coordinador fija la prioridad y el caso pasa a En evaluación."""
     if caso.estado != Estado.REGISTRADO:
-        raise _error(status.HTTP_400_BAD_REQUEST, "Solo se evalúan casos en estado Registrado")
+        raise TransicionInvalida("Solo se evalúan casos en estado Registrado")
     caso.prioridad = prioridad
     _cambiar_estado(
         sesion, caso, Estado.EN_EVALUACION, coordinador, f"Prioridad: {prioridad.value}"
@@ -134,7 +175,7 @@ def asignar_tecnico(sesion: Session, caso: Caso, coordinador: Usuario, tecnico_i
     """
     tecnico = sesion.get(Usuario, tecnico_id)
     if tecnico is None or tecnico.rol != Rol.TECNICO or not tecnico.activo:
-        raise _error(422, "El usuario no es un técnico activo")
+        raise DatoInvalido("El usuario no es un técnico activo", "tecnico_id")
 
     if caso.estado == Estado.EN_EVALUACION:
         sesion.add(Asignacion(caso=caso, tecnico_id=tecnico.id, asignado_por=coordinador.id))
@@ -142,16 +183,13 @@ def asignar_tecnico(sesion: Session, caso: Caso, coordinador: Usuario, tecnico_i
     elif caso.estado in ESTADOS_REASIGNABLES:
         activa = caso.asignacion_activa
         if activa is not None and activa.tecnico_id == tecnico.id:
-            raise _error(status.HTTP_400_BAD_REQUEST, "Ese técnico ya es el responsable del caso")
+            raise TransicionInvalida("Ese técnico ya es el responsable del caso")
         if activa is not None:
             activa.retirado_en = ahora_utc()
             sesion.flush()  # retirar antes de insertar: solo una asignación activa
         sesion.add(Asignacion(caso=caso, tecnico_id=tecnico.id, asignado_por=coordinador.id))
     else:
-        raise _error(
-            status.HTTP_400_BAD_REQUEST,
-            f"No se puede asignar un técnico en estado {caso.estado.value}",
-        )
+        raise TransicionInvalida(f"No se puede asignar un técnico en estado {caso.estado.value}")
     sesion.flush()
     sesion.expire(caso, ["asignacion_activa"])
 
@@ -167,10 +205,7 @@ def registrar_intervencion(
     """RF-06 / RN-02 / RN-04: solo el responsable, con el caso En atención."""
     _exigir_responsable(caso, tecnico)
     if caso.estado != Estado.EN_ATENCION:
-        raise _error(
-            status.HTTP_400_BAD_REQUEST,
-            "Solo se registran intervenciones con el caso En atención",
-        )
+        raise TransicionInvalida("Solo se registran intervenciones con el caso En atención")
     intervencion = Intervencion(
         caso=caso,
         tecnico_id=tecnico.id,
@@ -186,10 +221,8 @@ def resolver(sesion: Session, caso: Caso, tecnico: Usuario, solucion: str) -> No
     """RF-08 / RN-03: exige al menos una intervención y el texto de la solución."""
     _exigir_responsable(caso, tecnico)
     if caso.estado == Estado.EN_ATENCION and not caso.intervenciones:
-        raise _error(
-            status.HTTP_400_BAD_REQUEST,
-            "Registre al menos una intervención antes de resolver el caso",
-        )
+        raise TransicionInvalida("Registre al menos una intervención antes de resolver el caso")
+    _validar_transicion(caso, Estado.RESUELTO)
     caso.solucion = solucion
     caso.resuelto_en = ahora_utc()
     _cambiar_estado(sesion, caso, Estado.RESUELTO, tecnico)
@@ -197,14 +230,6 @@ def resolver(sesion: Session, caso: Caso, tecnico: Usuario, solucion: str) -> No
 
 def cerrar(sesion: Session, caso: Caso, coordinador: Usuario) -> None:
     """RF-08 / RN-04: solo el coordinador cierra; un caso cerrado no se reabre."""
+    _validar_transicion(caso, Estado.CERRADO)
     caso.cerrado_en = ahora_utc()
     _cambiar_estado(sesion, caso, Estado.CERRADO, coordinador)
-
-
-def tecnicos_activos(sesion: Session) -> list[Usuario]:
-    consulta = (
-        select(Usuario)
-        .where(Usuario.rol == Rol.TECNICO, Usuario.activo.is_(True))
-        .order_by(Usuario.nombre)
-    )
-    return list(sesion.scalars(consulta))

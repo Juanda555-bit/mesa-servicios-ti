@@ -1,0 +1,65 @@
+{
+  "prueba": "PF-06",
+  "intercambios": [
+    {
+      "peticion": "POST /casos",
+      "autenticado_como": "solicitante1",
+      "cuerpo_enviado": {
+        "placa_equipo": "PF-020",
+        "nombre_usuario": "Ana Prueba",
+        "telefono": "333333333333333333333",
+        "fecha": "2026-11-10",
+        "descripcion": "Descripcion suficientemente larga",
+        "dependencia_id": 1
+      },
+      "codigo_http": 422,
+      "respuesta": {
+        "detalle": "Datos de entrada no válidos",
+        "campos": [
+          {
+            "campo": "telefono",
+            "motivo": "Debe tener como máximo 20 caracteres"
+          }
+        ]
+      }
+    },
+    {
+      "peticion": "POST /casos",
+      "autenticado_como": "solicitante1 (varios campos invalidos)",
+      "cuerpo_enviado": {
+        "placa_equipo": "",
+        "nombre_usuario": "Ana Prueba",
+        "telefono": "333333333333333333333",
+        "fecha": "2030-01-01",
+        "descripcion": "corta",
+        "dependencia_id": 1
+      },
+      "codigo_http": 422,
+      "respuesta": {
+        "detalle": "Datos de entrada no válidos",
+        "campos": [
+          {
+            "campo": "placa_equipo",
+            "motivo": "Debe tener al menos 1 caracteres"
+          },
+          {
+            "campo": "telefono",
+            "motivo": "Debe tener como máximo 20 caracteres"
+          },
+          {
+            "campo": "fecha",
+            "motivo": "La fecha de la falla no puede ser futura"
+          },
+          {
+            "campo": "descripcion",
+            "motivo": "Debe tener al menos 15 caracteres"
+          }
+        ]
+      }
+    }
+  ],
+  "casos_visibles_antes_y_despues": [
+    3,
+    3
+  ]
+}
