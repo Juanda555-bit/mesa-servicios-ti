@@ -698,6 +698,32 @@ def test_422_lista_todos_los_campos(entorno):
     assert "password" in {c["campo"] for c in r.json()["campos"]}
 
 
+def test_motivo_longitud_singular_y_plural():
+    """RF-20: concordancia carácter/caracteres en los motivos de longitud."""
+    from backend.app.errores import _motivo
+
+    corto = lambda n: {"type": "string_too_short", "ctx": {"min_length": n}}
+    largo = lambda n: {"type": "string_too_long", "ctx": {"max_length": n}}
+    assert _motivo(corto(1)) == "Debe tener al menos 1 carácter"
+    assert _motivo(corto(15)) == "Debe tener al menos 15 caracteres"
+    assert _motivo(largo(1)) == "Debe tener como máximo 1 carácter"
+    assert _motivo(largo(20)) == "Debe tener como máximo 20 caracteres"
+
+
+def test_422_motivos_de_longitud(entorno):
+    cliente, h, _ = entorno
+    r = cliente.post(
+        "/casos",
+        json=_reporte(placa_equipo="", descripcion="corta", telefono="1" * 21),
+        headers=h["sol1"],
+    )
+    assert r.status_code == 422
+    campos = {c["campo"]: c["motivo"] for c in r.json()["campos"]}
+    assert campos["placa_equipo"] == "Debe tener al menos 1 carácter"
+    assert campos["descripcion"] == "Debe tener al menos 15 caracteres"
+    assert campos["telefono"] == "Debe tener como máximo 20 caracteres"
+
+
 def test_integridad_400_sin_detalles_internos(entorno, monkeypatch):
     # RF-10: IntegrityError -> 400, sin SQL ni nombres de tabla en el cuerpo
     from sqlalchemy.exc import IntegrityError

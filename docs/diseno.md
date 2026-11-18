@@ -270,7 +270,11 @@ Respuesta `201`: caso con `estado: "Registrado"`, `prioridad: null`, `tecnico: n
 - **Técnico:** lista de casos asignados, detalle con formulario de intervención y botones "Iniciar atención" y "Resolver".
 - **Coordinador:** tablero (abiertos, cerrados, fechas, por técnico), lista de todos los casos, detalle con prioridad, selector de técnico y botón "Cerrar".
 
-Los prototipos gráficos se agregarán en `evidencias/` o aquí antes de la sustentación.
+Capturas reales de la interfaz (PF-12, `docs/pruebas_funcionales.md`), una por rol:
+
+- Solicitante: [formulario de reporte](../evidencias/PF-12-03-reporte-formulario.png) y [resultado con línea de tiempo](../evidencias/PF-12-12-solicitante-resultado.png).
+- Técnico: [casos asignados](../evidencias/PF-12-08-login-tecnico-lista.png) y [intervención](../evidencias/PF-12-09-intervencion.png).
+- Coordinador: [tablero](../evidencias/PF-12-13-tablero-final.png) y [evaluación](../evidencias/PF-12-06-evaluacion.png).
 
 ## 8. Correspondencia con las condiciones de aceptación
 

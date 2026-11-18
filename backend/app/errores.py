@@ -63,15 +63,19 @@ async def error_http(_request: Request, exc: StarletteHTTPException):
     )
 
 
+def _unidades(n) -> str:
+    return f"{n} carácter" if n == 1 else f"{n} caracteres"
+
+
 def _motivo(error: dict) -> str:
     tipo = error.get("type", "")
     ctx = error.get("ctx") or {}
     if tipo == "missing":
         return "Campo obligatorio"
     if tipo == "string_too_short":
-        return f"Debe tener al menos {ctx.get('min_length')} caracteres"
+        return f"Debe tener al menos {_unidades(ctx.get('min_length'))}"
     if tipo == "string_too_long":
-        return f"Debe tener como máximo {ctx.get('max_length')} caracteres"
+        return f"Debe tener como máximo {_unidades(ctx.get('max_length'))}"
     if tipo == "greater_than":
         return f"Debe ser mayor que {ctx.get('gt')}"
     if tipo in ("int_parsing", "int_type"):

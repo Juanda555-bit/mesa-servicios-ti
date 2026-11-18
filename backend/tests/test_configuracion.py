@@ -72,3 +72,55 @@ def test_pruebas_aisladas_del_env_local(valores_de_prueba):
     assert config.ajustes.jwt_expira_min == int(valores_de_prueba["JWT_EXPIRA_MIN"])
     assert database.url_por_defecto() == valores_de_prueba["DATABASE_URL"]
     assert database.engine.url.database == ":memory:"  # str(url) escapa los dos puntos
+
+
+# --- CORS (spec 003, RF-1 y RF-2) ---
+
+
+def test_cors_preflight_origen_permitido_sin_credenciales():
+    from fastapi.testclient import TestClient
+
+    from backend.app.main import app
+
+    respuesta = TestClient(app).options(
+        "/casos",
+        headers={"Origin": "http://localhost:5173", "Access-Control-Request-Method": "POST"},
+    )
+    assert respuesta.status_code == 200
+    assert respuesta.headers["access-control-allow-origin"] == "http://localhost:5173"
+    assert "access-control-allow-credentials" not in respuesta.headers
+
+
+def test_cors_preflight_origen_no_permitido_400():
+    from fastapi.testclient import TestClient
+
+    from backend.app.main import app
+
+    respuesta = TestClient(app).options(
+        "/casos",
+        headers={"Origin": "http://otro.example", "Access-Control-Request-Method": "POST"},
+    )
+    assert respuesta.status_code == 400
+    assert "access-control-allow-origin" not in respuesta.headers
+
+
+@pytest.mark.parametrize("valor", ["*", "http://localhost:5173, *"], ids=["solo_comodin", "en_lista"])
+def test_cors_comodin_rechazado(valor):
+    with pytest.raises(ErrorConfiguracion) as error:
+        cargar_configuracion({"JWT_SECRET": SECRETO_32, "CORS_ORIGINS": valor})
+    mensaje = str(error.value)
+    assert "CORS_ORIGINS" in mensaje
+    assert "orígenes exactos" in mensaje
+
+
+def test_cors_varios_origenes():
+    ajustes = cargar_configuracion(
+        {"JWT_SECRET": SECRETO_32, "CORS_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173"}
+    )
+    assert ajustes.cors_origenes == ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+
+@pytest.mark.parametrize("valor", ["", "  "], ids=["vacio", "espacios"])
+def test_cors_vacio_usa_por_defecto(valor):
+    ajustes = cargar_configuracion({"JWT_SECRET": SECRETO_32, "CORS_ORIGINS": valor})
+    assert ajustes.cors_origenes == ["http://localhost:5173"]

@@ -4,3 +4,5 @@ node_modules/
 .venv/
 *.db
 .pytest_cache/
+dist/
+frontend/.env
