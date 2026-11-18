@@ -27,7 +27,7 @@ const ETIQUETAS_EVENTO = {
   intervencion: "Intervención",
 };
 
-// Etiqueta legible del tipo de evento de la línea de tiempo (nunca el identificador crudo).
+// Etiqueta legible del tipo de evento de la línea de tiempo; un tipo no previsto se muestra tal cual (RF-11).
 export function etiquetaEvento(tipo) {
-  return ETIQUETAS_EVENTO[tipo] ?? "Evento";
+  return ETIQUETAS_EVENTO[tipo] ?? tipo;
 }

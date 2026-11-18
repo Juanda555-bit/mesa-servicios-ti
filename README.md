@@ -58,12 +58,12 @@ Diseño de la Actividad 3, aprobado por el equipo e implementado en la API (16/1
 
 - Diagrama de componentes y responsabilidades: [Arquitectura](docs/diseno.md#2-arquitectura).
 - Modelo de datos y relaciones: [Modelo de datos](docs/diseno.md#3-modelo-de-datos).
-- Prototipos de interfaz: [descripción de las pantallas](docs/diseno.md#7-prototipos-de-interfaz-descripción); los prototipos gráficos y las capturas se agregarán cuando exista la interfaz.
+- Prototipos de interfaz: [descripción de las pantallas](docs/diseno.md#7-prototipos-de-interfaz-descripción); capturas reales de la interfaz por rol y del flujo completo en [`evidencias/PF-12-*.png`](evidencias/) (ver PF-12 en [`docs/pruebas_funcionales.md`](docs/pruebas_funcionales.md)).
 - Justificación de tecnologías: [Decisiones técnicas](docs/diseno.md#1-decisiones-técnicas).
 
 ## 5. Configuración del entorno
 
-Requisitos de software: Python 3.12 y Git. El frontend (React + Vite) aún no existe y se documentará cuando se implemente.
+Requisitos de software: Python 3.12, Git y, para el frontend (React + Vite), Node.js `^20.19.0 || >=22.12.0` (el mismo rango que `engines.node` de `frontend/package.json`) con npm.
 
 Todos los comandos se ejecutan desde la raíz del repositorio:
 
@@ -89,7 +89,7 @@ Quien tenga un `.env` de versiones anteriores debe renombrar sus variables de se
 |---|---|
 | `JWT_SECRET` | Clave para firmar los tokens. Obligatoria, mínimo 32 caracteres; sin ella (o con el valor de ejemplo) no arrancan la API ni el seeder. |
 | `JWT_EXPIRA_MIN` | Minutos de validez del token: entero mayor que 0 (480 = 8 horas, valor por defecto si se omite). |
-| `CORS_ORIGINS` | Orígenes permitidos para el frontend, separados por coma. |
+| `CORS_ORIGINS` | Orígenes permitidos para el frontend, separados por coma (por defecto `http://localhost:5173`). No admite `*`: si se incluye, la API no arranca. La API no usa cookies ni credenciales en CORS. |
 | `DATABASE_URL` | Opcional (comentada en `.env.example`): URL SQLite; si se omite se usa `backend/mesa_ti.db`. |
 
 **Base de datos y datos de prueba.** `python -m backend.seed` crea la base (si no existe) y carga datos ficticios. Para empezar de cero, borrar `backend/mesa_ti.db` y volver a ejecutarlo.
@@ -104,6 +104,19 @@ Usuarios de prueba del seeder (contraseña de demostración `Mesa2026*`, datos f
 | Coordinador | coordinador@mesa.edu.co |
 | Técnico | tecnico1@mesa.edu.co, tecnico2@mesa.edu.co |
 | Solicitante | solicitante1@mesa.edu.co, solicitante2@mesa.edu.co |
+
+**Frontend (React + Vite).** Orden de arranque: 1) API, 2) seeder, 3) frontend. Con la API y el seeder en marcha (comandos anteriores), en otra terminal desde la raíz:
+
+```bash
+cd frontend
+npm ci                      # o npm install
+copy .env.example .env      # Windows (en Linux/Mac: cp .env.example .env)
+npm run dev
+```
+
+- Interfaz: http://localhost:5173 (inicio de sesión con los usuarios del seeder).
+- `frontend/.env.example` define `VITE_API_URL=http://localhost:8000`, la dirección de la API; el navegador la llama directamente, sin proxy de Vite. Si se cambia el origen del frontend, debe coincidir con `CORS_ORIGINS` del backend.
+- `npm run build` genera el empaquetado en `frontend/dist` (no se versiona).
 
 ## 6. Servicios web implementados
 
@@ -177,7 +190,7 @@ Pruebas automáticas, desde la raíz y con el entorno activado:
 python -m pytest backend -v
 ```
 
-Resultado de la última ejecución (17/11/2026, rama `feat/002-seguridad-y-capas`, `python -m pytest backend -v`): **76 pasan, 0 fallan** (57 en `test_api.py`, 3 en `test_capas.py`, 11 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
+Resultado de la última ejecución (18/11/2026, rama `local/003-trabajo`, `python -m pytest backend -v`): **85 pasan, 0 fallan** (59 en `test_api.py`, 3 en `test_capas.py`, 18 en `test_configuracion.py` y 5 en `test_modelos.py`). Las pruebas usan un secreto ficticio y una base en memoria definidos en `backend/tests/conftest.py`: no leen `.env` ni tocan `backend/mesa_ti.db`. Esquema de la base: `python -I backend/db/probar_esquema.py` (45 correctas, 0 fallidas).
 
 | Prueba | Tipo | Requisito | Resultado |
 |---|---|---|---|
